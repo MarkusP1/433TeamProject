@@ -2,10 +2,25 @@ import java.io.*;
 import java.util.ArrayList;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.*;
 
 public class ReaderThing {
-	ArrayList<classLab> stuffToBePlaced = new ArrayList<classLab>();
-	ArrayList<courseSlot> courseSlots = new ArrayList<courseSlot>();
+	private static String faculty; //CPSC, SENG, etc.
+    private static int courseNumber;   //the 433 in CPSC 433
+    private static int courseSection;  //section 1, 2, etc., set to 0 if its a lab for every lecture section
+    private static boolean isLab;  //true if this is a lab
+	private static int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
+	private static DayOfWeek day;    
+    private static LocalTime time;   
+    private static int courseMax;  //coursmax is also labmax for the slot if this is a lab
+	private static int courseMin;  //see above
+	private static String[] words;
+	private static classLab classLabToAdd;
+	private static courseSlot courseSlotToAdd;
+	private static ArrayList<classLab> stuffToBePlaced = new ArrayList<classLab>();
+	private static ArrayList<courseSlot> courseSlots = new ArrayList<courseSlot>();
+
+
 	public static void main(String args[]){
 		ArrayList<String> input = collectInput(args); 
 		int i = 0;
@@ -22,94 +37,163 @@ public class ReaderThing {
 			i++;
 		}
 		i++;
+
+
 		//this is course slots
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Course"))){
-				//idea: delete the commas, split by space, each index is now a part of the string, so i can access Mo separately from 8:00 etc.
+				//idea: delete the commas, split by space, each index is now a part of the original string, so i can access Mo separately from 8:00 etc.
 				workingOn = workingOn.replaceAll(",","");
-				String[] words = workingOn.split(" ");
+				words = workingOn.split(" ");
+				if (words[0] == "MO") {
+					day.of(1);
+				}
+				else if (words[0] == "TU") {
+					day.of(2);
+				}
+				//if the time doesnt start with 0 or 1 or 2, then add a leading zero, so 8:00 becomes 08:00, do this because LocalTime.parse requires hours be two digits.
+				if (!((words[1].charAt(0) == '0')||(words[1].charAt(0) == '1')||(words[1].charAt(0) == '2'))){
+					time.parse("0"+words[1]);
+				}
+				else{
+					time.parse(words[1]);
+				}
+				courseMax = Integer.parseInt(words[2]);
+				courseMin = Integer.parseInt(words[3]);
+				courseSlotToAdd = new courseSlot(day,time,courseMax,courseMin, false);
+				courseSlots.add(courseSlotToAdd);
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is lab slots
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Lab"))){
-
+				workingOn = workingOn.replaceAll(",","");
+				words = workingOn.split(" ");
+				if (words[0] == "MO") {
+					day.of(1);
+				}
+				else if (words[0] == "TU") {
+					day.of(2);
+				}
+				if (!(((words[1].charAt(0) == '0')||(words[1].charAt(0) == '1')||(words[1].charAt(0) == '2')))){
+					time.parse("0"+words[1]);
+				}
+				else{
+					time.parse(words[1]);
+				}
+				courseMax = Integer.parseInt(words[2]);
+				courseMin = Integer.parseInt(words[3]);
+				courseSlotToAdd = new courseSlot(day,time,courseMax,courseMin, true);
+				courseSlots.add(courseSlotToAdd);
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is courses
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Course"))){
-
+				words = workingOn.split(" ");
+				faculty = words[0];
+				courseNumber = Integer.parseInt(words[1]);
+				courseSection = Integer.parseInt(words[3].replaceAll("0", ""));
+				classLabToAdd = new classLab(faculty, courseNumber, courseSection, false, 0);
+				stuffToBePlaced.add(classLabToAdd);
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is labs
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Lab"))){
-
+				words = workingOn.split(" ");
+				faculty = words[0];
+				courseNumber = Integer.parseInt(words[1]);
+				if (words[2].equals("LEC")){
+					courseSection = Integer.parseInt(words[3].replaceAll("0", ""));
+					labSection = Integer.parseInt(words[5].replaceAll("0", ""));
+				}
+				else {
+					courseSection = 0;
+					labSection = Integer.parseInt(words[3].replaceAll("0", ""));
+				}
+				classLabToAdd = new classLab(faculty, courseNumber, courseSection, true, labSection);
+				stuffToBePlaced.add(classLabToAdd);
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is not compatible
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Not"))){
-
+				//at this point workonOn is a string similar to: CPSC 567 LEC 01, CPSC 433 LEC 01
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is unwanted
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Unw"))){
-
+				//at this point workingOn is a string similar to: CPSC 433 LEC 01, MO, 8:00
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is preferences
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Pre"))){
-
+				//at this point workingOn is a string similar to: MO, 8:00, CPSC 433 LEC 01, 10
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is pair
 		while (input.get(i).length()>2){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Pai"))){
-
+				//at this point workingOn is a string similar to: SENG 311 LEC 01, CPSC 567 LEC 01
 			}
 			i++;
 		}
+
+
 		i++;
 		//this is partial assignments
 		while (i < input.size()){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Part"))){
-
+				//at this point workingOn is a string similar to: SENG 311 LEC 01, MO, 8:00
 			}
 			i++;
 		}
@@ -119,7 +203,7 @@ public class ReaderThing {
 		ArrayList<String> totalInput = new ArrayList<String>();		
 		//File inputFile = new File(args[0]);//args[0] in brackets
 		try{ 
-		BufferedReader input = new BufferedReader(new FileReader("inputs/gehtnicht1.txt")); //should look something like "inputs/" + inputFile
+		BufferedReader input = new BufferedReader(new FileReader("inputs/gehtnicht5.txt")); //should look something like "inputs/" + inputFile
 		String line = ""; 
 		while((line = input.readLine()) != null){
 			totalInput.add(line);
@@ -133,53 +217,11 @@ public class ReaderThing {
 		return totalInput;
 	}
 
-	//write methods that take the individual pieces of the input and do things with them
-	//creat slot objects for courses
-	public void writeCourseSlots() {
-
+	public static ArrayList<classLab> getCourses() {
+		return stuffToBePlaced;
 	}
 
-	//create slot objects for labs
-	public void writeLabSlots() {
-
-	}
-
-	//create course objects for lectures
-	public void writeCourses() {
-
-	}
-
-	//create course objects for labs
-	public void writeLabs() {
-
-	}
-
-	//Note: we have not decided what to do about the following yet, however they seem to be mostly pairs of classes and slots, and pairs of classes
-	//Idea: class and slot pairs with positive score/attribute = preferences, pairs with maxed out score = partial assignments, negative score = unwanted
-	//Idea: course pairs with positive score = pairs, course pairs with negative score = Not Compatible
-
-	//create whatever we're using to store non compatible classes
-	public void writeNotCompatible() {
-
-	}
-
-	//create whatever we're using to create unwanted class and slot pairs
-	public void writeUnwanted() {
-
-	}
-
-	//create whatever we're using to store wanted class and slot pairs
-	public void writePreferences() {
-
-	}
-
-	//create something for course pairs
-	public void writePair() {
-
-	}
-
-	//create something for partial assignments of courses and slots
-	public void writePartialAssignment() {
-
+	public static ArrayList<courseSlot> getSlots() {
+		return courseSlots;
 	}
 }

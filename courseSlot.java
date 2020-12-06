@@ -1,12 +1,19 @@
-
+import java.time.*;
 
 
 
 public class courseSlot {
-    private int day;    //1 for monday, 2 for tuesday, etc.
-    private int time;   //24 hour clock, 1-24
+    private DayOfWeek day;    
+    private LocalTime time;   
     private int courseMax;  //coursmax is also labmax for the slot if this is a lab
     private int courseMin;  //see above
     private boolean isLab;  //true if this is a lab
 
+    public courseSlot(DayOfWeek inputDay, LocalTime inputTime, int inputCourseMax, int inputCourseMin, boolean inputIsLab) {
+        this.day = inputDay;
+        this.time = inputTime;
+        this.courseMax = inputCourseMax;
+        this.courseMin = inputCourseMin;
+        this.isLab = inputIsLab;
+    }
 }

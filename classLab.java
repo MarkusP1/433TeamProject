@@ -8,4 +8,11 @@ public class classLab {
     private boolean isLab;  //true if this is a lab
     private int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
 
+    public classLab(String inputFaculty, int inputCourseNumber, int inputCourseSection, boolean inputIsLab, int inputLabSection) {
+        this.faculty = inputFaculty;
+        this.courseNumber = inputCourseNumber;
+        this.courseSection = inputCourseSection;
+        this.isLab = inputIsLab;
+        this.labSection = inputLabSection;
+    }
 }
