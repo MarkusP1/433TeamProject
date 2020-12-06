@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ReaderThing {
-	ArrayList<classLab> stuffToBePlaced = new ArrayList<classLab>();
-	ArrayList<courseSlot> courseSlots = new ArrayList<courseSlot>();
+	ArrayList<UniClass> stuffToBePlaced = new ArrayList<UniClass>();
+	ArrayList<Slot> courseSlots = new ArrayList<Slot>();
 	public static void main(String args[]){
 		ArrayList<String> input = collectInput(args); 
 		int i = 0;
