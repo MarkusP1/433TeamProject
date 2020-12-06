@@ -4,22 +4,122 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ReaderThing {
+	ArrayList<classLab> stuffToBePlaced = new ArrayList<classLab>();
+	ArrayList<courseSlot> courseSlots = new ArrayList<courseSlot>();
 	public static void main(String args[]){
 		ArrayList<String> input = collectInput(args); 
 		int i = 0;
-		while((!input.isEmpty())&&(i < input.size())){
+		String workingOn;
+		/*while((!input.isEmpty())&&(i < input.size())){
 			System.out.println(input.get(i));
-			i += 1;
-		}
+			i++;
+		}*/
 		i=0;
-		
+		//this is just file name
+		while (input.get(i).length()>2){   //(!input.isEmpty())&&(input.get(i).length()>2)
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			i++;
+		}
+		i++;
+		//this is course slots
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Course"))){
+				//idea: delete the commas, split by space, each index is now a part of the string, so i can access Mo separately from 8:00 etc.
+				workingOn = workingOn.replaceAll(",","");
+				String[] words = workingOn.split(" ");
+			}
+			i++;
+		}
+		i++;
+		//this is lab slots
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Lab"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is courses
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Course"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is labs
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Lab"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is not compatible
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Not"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is unwanted
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Unw"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is preferences
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Pre"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is pair
+		while (input.get(i).length()>2){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Pai"))){
+
+			}
+			i++;
+		}
+		i++;
+		//this is partial assignments
+		while (i < input.size()){
+			workingOn = (input.get(i));
+			System.out.println(workingOn);
+			if (!(workingOn.contains("Part"))){
+
+			}
+			i++;
+		}
 	}
 
 	public static ArrayList<String> collectInput(String[] args){
 		ArrayList<String> totalInput = new ArrayList<String>();		
 		//File inputFile = new File(args[0]);//args[0] in brackets
 		try{ 
-		BufferedReader input = new BufferedReader(new FileReader("inputs/input.txt")); //should look something like "inputs/" + inputFile
+		BufferedReader input = new BufferedReader(new FileReader("inputs/gehtnicht1.txt")); //should look something like "inputs/" + inputFile
 		String line = ""; 
 		while((line = input.readLine()) != null){
 			totalInput.add(line);
