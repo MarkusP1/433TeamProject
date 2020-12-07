@@ -4,9 +4,20 @@ import java.util.Collections;
 public class Prob {
 	boolean constr;
 	int eval;
-    ArrayList<ClassLab> stuffToBePlaced = new ArrayList<ClassLab>();
-    ArrayList<Slot> courseSlots = new ArrayList<Slot>();
+    ArrayList<ClassLab> stuffToBePlaced;
+    ArrayList<Slot> courseSlots;
+
 	
+    public Prob(ArrayList<ClassLab> stuffToBePlaced, ArrayList<Slot> courseSlots) {
+    	this.stuffToBePlaced = new ArrayList<ClassLab>(stuffToBePlaced);
+    	this.courseSlots = new ArrayList<Slot>(courseSlots);
+    }
+	
+    public Prob() {
+    	this.stuffToBePlaced = new ArrayList<ClassLab>();
+    	this.courseSlots = new ArrayList<Slot>();
+    }
+    
 	public ArrayList<Slot> getUnmodifiableSlots() {
     	return (ArrayList<Slot>) Collections.unmodifiableList(courseSlots);
     }
@@ -25,11 +36,6 @@ public class Prob {
     
     public int getEval() {
     	return eval;
-    }
-	
-	
-    public Prob()
-    {
     }
 	
     //may want variables for constr and eval

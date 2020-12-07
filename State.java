@@ -1,5 +1,4 @@
-import java.io.*; 
-import java.util.*;
+import java.util.LinkedList;
 
 
 
@@ -11,25 +10,26 @@ public class State{
 	Leaf selected;//This is the leaf that will be operated on
 	int selectedIndex;//This is the above leaf's index.
 	
-	ConstraintChecker c;//This is the ConstraintChecker that goes with the intial situation. 
+	// ConstraintChecker c;//This is the ConstraintChecker that goes with the intial situation.
+	// Moved to AndTreeSearch
 	
-	boolean allSolved = false;//If there are any unsolved nodes, this is true, false otherwise.
+	boolean allSolved = false;//If there are any unsolved nodes, this is false, true otherwise.
 	
 	
-	State(LinkedList<Leaf> leaves,ConstraintChecker c){//Constructor
+	State(LinkedList<Leaf> leaves /*,ConstraintChecker c*/){//Constructor
 		this.leaves = leaves;
 		this.bestsol = -1;
-		this.c = c;
+		//this.c = c;
 	}
 
 
-	void Erw(){
+	void erw(ConstraintChecker c){
 		fleaf();//Changes 'selected' and its index to follow fleaf as outlined in the paper
 	
 		solved(selectedIndex);//Checks if the given leaf is solved, does operations on it contingent on that. The name does not indicate the true purpose of this function!
 		
 		if(selectedIndex != -1){//If there is a selected index, perform a transition
-			ftrans();
+			ftrans(c);
 		}
 		
 		
@@ -101,7 +101,7 @@ public class State{
     }
 	
 	
-	void ftrans(){
+	void ftrans(ConstraintChecker c){
 		LinkedList<Prob> children = div(leaves.get(selectedIndex).pr);//Making a linked list of child nodes
 		
 		LinkedList<Leaf> newLeaves = new LinkedList<Leaf>();

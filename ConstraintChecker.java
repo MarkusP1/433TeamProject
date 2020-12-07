@@ -28,11 +28,17 @@ public class ConstraintChecker {
 	boolean debug;
 	
 	public ConstraintChecker(HashMap<ClassLab, ClassLabConstraints> constraintsMap,
-			int pen_coursemin, int pen_labsmin, int pen_notpaired, boolean debug) {
+			int pen_coursemin, int pen_labsmin, int pen_notpaired, int pen_section,
+			float w_minfilled, float w_pref, float w_pair, float w_secdiff, boolean debug) {
 		this.constraintsMap = new HashMap<ClassLab, ClassLabConstraints>(constraintsMap);
 		this.pen_coursemin = pen_coursemin;
 		this.pen_labsmin = pen_labsmin;
 		this.pen_notpaired = pen_notpaired;
+		this.pen_section = pen_section;
+		this.w_minfilled = w_minfilled;
+		this.w_pref = w_pref;
+		this.w_pair = w_pair;
+		this.w_secdiff = w_secdiff;
 		this.debug = debug;
 	}
 	

@@ -12,7 +12,10 @@ public class ClassLabConstraints {
 	private ArrayList<ClassLab> pair;
 	
 	public ClassLabConstraints() {
-		
+		this.notCompatible = new ArrayList<ClassLab>();
+		this.unwanted = new ArrayList<Slot>();
+		this.pen_notInPreference = 0;
+		this.pair = new ArrayList<ClassLab>();
 	}
 	
 	public ClassLabConstraints(ArrayList<ClassLab> notCompatible, Slot partassign,
@@ -45,6 +48,10 @@ public class ClassLabConstraints {
 
 	public boolean unwantedContains(Slot sl) {
 		return unwanted.contains(sl);
+	}
+	
+	public ArrayList<Slot> getUnmodifiableUnwanted() {
+		return (ArrayList<Slot>) Collections.unmodifiableList(unwanted);
 	}
 	
 	public void addUnwanted(Slot sl) {

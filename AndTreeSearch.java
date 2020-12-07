@@ -16,19 +16,25 @@ import java.util.ArrayList;*/
 public class AndTreeSearch {
 	 State startState;
 
-	public AndTreeSearch(){
-	 State startState = new State();}
-	
-	public class State{
-		int varia;
-		public State() {
-			varia =0;
-		}
-		//(Pr, sol)
-		//Can have an empty list of children, or a populated list of children. 
-	}
-	
-	public class Prob{
+	/**
+	 * 
+	 * @param args
+	 * takes in 10 inputs:
+	 * 	1: input file
+	 * 	2 - 5: pen_coursemin, pen_labsmin, pen_notpaired, pen_section
+	 * 	6 - 9: w_minfilled, w_pref, w_pair, w_secdiff
+	 * 	10: true/false debug mode (to be implemented for printing everything and waiting for input to continue)
+	 */
+	public static void main(String[] args) {
+		ReaderThing.read(args);
+		
+		
+		Leaf root = new Leaf(new Prob(ReaderThing.getCourses(), ReaderThing.getSlots()), 0);
+		ConstraintChecker c = ReaderThing.getConstraintChecker();
+		
+		System.out.println("done for now");
 	}
 
+	
+	
 }
