@@ -43,8 +43,11 @@ public class Prob {
     //to set the arraylists use something like courseSlots = ReaderThing.getCourses();
     public Prob(Prob copy)
     {
-        this.stuffToBePlaced =copy.stuffToBePlaced;
-        this.courseSlots = copy.courseSlots;
+        this.stuffToBePlaced = new ArrayList<ClassLab>(copy.stuffToBePlaced);
+        this.courseSlots = new ArrayList<Slot>();
+        for (Slot sl : copy.courseSlots) {
+        	this.courseSlots.add(new Slot(sl));
+        }
     }
 
 }

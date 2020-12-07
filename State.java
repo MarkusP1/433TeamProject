@@ -5,6 +5,8 @@ import java.util.LinkedList;
 public class State{
 	
 	int bestsol;//This keeps track of the best known solution's eval*. 
+	int bestIndex;
+	
 	LinkedList<Leaf> leaves = new LinkedList<Leaf>();//The list of leaves
 	
 	Leaf selected;//This is the leaf that will be operated on
@@ -24,6 +26,10 @@ public class State{
 
 
 	void erw(ConstraintChecker c){
+		if(allSolved){
+		System.out.println("stillborn");
+		}
+		
 		fleaf();//Changes 'selected' and its index to follow fleaf as outlined in the paper
 	
 		solved(selectedIndex);//Checks if the given leaf is solved, does operations on it contingent on that. The name does not indicate the true purpose of this function!
@@ -55,11 +61,13 @@ public class State{
 			
 			if(leaves.get(i).eval < bestsol || bestsol == -1){
 				bestsol = leaves.get(i).eval;
+				bestIndex = i;
 			}
 			selectedIndex = -1;//SelectedIndex = -1 means 'don't do any transitions on this leaf'
 			
 		}
-		if(!leaves.get(i).constr||leaves.get(i).eval > bestsol){//If the node's problem either violates some constraints or is has a worse eval than the best one...
+		if(!leaves.get(i).constr
+				|| (bestsol != -1 && leaves.get(i).eval > bestsol)){//If the node's problem either violates some constraints or is has a worse eval than the best one...
 			leaves.remove(i);///..get rid of it
 			selectedIndex = -1;//and make sure no transition will be attempted this pass.
 		}
@@ -189,7 +197,7 @@ public class State{
 					 allSolved = true;
 				 }
 			}
-			
+		//	System.out.println(selectedIndex);
 			
 		}
 

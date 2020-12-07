@@ -25,6 +25,16 @@ public class Slot {
 		this.isLab = isLab;
 	}
 	
+	public Slot(Slot copy) {
+		this.days = new ArrayList<DayOfWeek>(copy.days);
+		this.startTime = copy.startTime;
+		this.endTime = copy.endTime;
+		this.max = copy.max;
+		this.min = copy.min;
+		this.isLab = copy.isLab;
+		this.classes = new ArrayList<ClassLab>(copy.classes);
+	}
+	
 	public ArrayList<DayOfWeek> getDays() {
 		return new ArrayList<DayOfWeek>(days);
 	}
