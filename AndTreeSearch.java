@@ -43,7 +43,8 @@ public class AndTreeSearch {
 		
 		if(tree.leaves.size() !=0){
 			System.out.println("Solution:");
-			Prob solution = tree.leaves.get(tree.bestIndex).pr;
+			Prob solution = tree.bestLeaf.pr;
+			System.out.println("Eval-value: " + solution.eval);
 			
 			for(int i = 0; i<solution.courseSlots.size();i++){
 				String output = solution.courseSlots.get(i).toString();

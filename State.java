@@ -5,7 +5,7 @@ import java.util.LinkedList;
 public class State{
 	
 	int bestsol;//This keeps track of the best known solution's eval*. 
-	int bestIndex;
+	Leaf bestLeaf;
 	
 	LinkedList<Leaf> leaves = new LinkedList<Leaf>();//The list of leaves
 	
@@ -61,8 +61,8 @@ public class State{
 			leaves.get(i).setSol('y');
 			
 			if(leaves.get(i).eval < bestsol || bestsol == -1){
-				bestsol = leaves.get(i).eval;
-				bestIndex = i;
+				bestLeaf = leaves.get(i);
+				bestsol = bestLeaf.eval;
 			}
 			selectedIndex = -1;//SelectedIndex = -1 means 'don't do any transitions on this leaf'
 			
@@ -152,18 +152,19 @@ public class State{
 					selectedIndex = leaves.size()-i-1;
 				 }
 				 if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).depth > deepest){
-					 selected = leaves.get(leaves.size()-i-1);
-					 deepest = leaves.get(leaves.size()-i-1).depth;
-					 selectedIndex = leaves.size()-i-1;
+					selected = leaves.get(leaves.size()-i-1);
+					deepest = leaves.get(leaves.size()-i-1).depth;
+					besteval = Math.min(besteval, leaves.get(leaves.size()-i-1).eval);
+					selectedIndex = leaves.size()-i-1;
 				 }
 				 else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).depth == deepest && leaves.get(leaves.size()-i-1).eval < besteval){
-					 selected = leaves.get(leaves.size()-i-1);
-					  besteval = leaves.get(leaves.size()-i-1).eval;
-					  selectedIndex = leaves.size()-i-1;
+					selected = leaves.get(leaves.size()-i-1);
+					besteval = leaves.get(leaves.size()-i-1).eval;
+					selectedIndex = leaves.size()-i-1;
 				 }
 				  else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).depth == deepest && leaves.get(leaves.size()-i-1).eval == besteval){
-					 selected = leaves.get(leaves.size()-i-1);
-					 selectedIndex = leaves.size()-i-1;
+					selected = leaves.get(leaves.size()-i-1);
+					selectedIndex = leaves.size()-i-1;
 				 }
 				 else{
 					 allSolved = true;
@@ -181,18 +182,19 @@ public class State{
 					selectedIndex = leaves.size()-i-1;
 				 }
 				 if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval < besteval){
-					 selected = leaves.get(leaves.size()-i-1);
-					 besteval = leaves.get(leaves.size()-i-1).eval;
-					 selectedIndex = leaves.size()-i-1;
+					selected = leaves.get(leaves.size()-i-1);
+					besteval = leaves.get(leaves.size()-i-1).eval;
+					selectedIndex = leaves.size()-i-1;
 				 }
 				 else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval == besteval && leaves.get(leaves.size()-i-1).depth > deepest){
-					 selected = leaves.get(leaves.size()-i-1);
-					  deepest = leaves.get(leaves.size()-i-1).depth;
-					  selectedIndex = leaves.size()-i-1;
+					selected = leaves.get(leaves.size()-i-1);
+					deepest = leaves.get(leaves.size()-i-1).depth;
+					besteval = Math.min(besteval, leaves.get(leaves.size()-i-1).eval);
+					selectedIndex = leaves.size()-i-1;
 				 }
 				  else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval == besteval && leaves.get(leaves.size()-i-1).depth == deepest){
-					 selected = leaves.get(leaves.size()-i-1);
-					 selectedIndex = leaves.size()-i-1;
+					selected = leaves.get(leaves.size()-i-1);
+					selectedIndex = leaves.size()-i-1;
 				 }
 				  else{
 					 allSolved = true;
