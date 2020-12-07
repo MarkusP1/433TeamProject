@@ -1,8 +1,7 @@
-package search;
+
 
 import java.util.ArrayList;
-import java.util.function.Predicate;
-
+import java.util.Collections;
 public class UniClassConstraints {
 	
 	private ArrayList<UniClass> notCompatible;
@@ -44,8 +43,8 @@ public class UniClassConstraints {
 		return pen_notInPreference;
 	}
 	
-	public ArrayList<UniClass> getPair() {
-		return pair;
+	public ArrayList<UniClass> getUnmodifiablePair() {
+		return (ArrayList<UniClass>) Collections.unmodifiableList(pair);
 	}
 
 }

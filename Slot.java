@@ -1,6 +1,7 @@
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Slot {
 	
@@ -11,9 +12,11 @@ public class Slot {
     private int min;  // see above
     private boolean isLab;  //true if this is a lab
     
+    private ArrayList<UniClass> uniClasses = new ArrayList<UniClass>();
+    
 	public Slot(ArrayList<DayOfWeek> days, LocalTime startTime, LocalTime endTime, int max, int min,
 			boolean isLab) {
-		this.days = days;
+		this.days = new ArrayList<DayOfWeek>(days);
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.max = max;
@@ -22,7 +25,7 @@ public class Slot {
 	}
 	
 	public ArrayList<DayOfWeek> getDays() {
-		return days;
+		return new ArrayList<DayOfWeek>(days);
 	}
 	public LocalTime getStartTime() {
 		return startTime;
@@ -39,6 +42,14 @@ public class Slot {
 	public boolean isLab() {
 		return isLab;
 	}
+	public void addUniClass(UniClass cl) {
+		uniClasses.add(cl);
+	}
+	public ArrayList<UniClass> getUnmodifiableUniClasses() {
+		return (ArrayList<UniClass>) Collections.unmodifiableList(uniClasses);
+	}
 
-    
+    public boolean conflicts(Slot sl) {
+    	return this.startTime.isAfter(sl.endTime) || this.endTime.isBefore(sl.startTime);
+    }
 }

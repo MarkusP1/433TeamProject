@@ -10,3 +10,7 @@
 /courseSlot.class
 /Slot.class
 /UniClass.class
+/ConstraintChecker.class
+/UniClassConstraints.class
+/state.class
+/leaf.class
