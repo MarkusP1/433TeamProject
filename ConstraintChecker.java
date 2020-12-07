@@ -13,7 +13,7 @@ public class ConstraintChecker {
 	HashMap<UniClass, ConstrPenPair<Slot>> preferenceMap;
 	HashMap<UniClass, UniClass> pairMap;*/
 	
-	HashMap<UniClass, UniClassConstraints> constraintsMap;
+	HashMap<ClassLab, ClassLabConstraints> constraintsMap;
 	
 	int pen_coursemin;
 	int pen_labsmin;
@@ -22,9 +22,9 @@ public class ConstraintChecker {
 
 	boolean debug;
 	
-	public ConstraintChecker(HashMap<UniClass, UniClassConstraints> constraintsMap,
+	public ConstraintChecker(HashMap<ClassLab, ClassLabConstraints> constraintsMap,
 			int pen_coursemin, int pen_labsmin, int pen_notpaired, boolean debug) {
-		this.constraintsMap = new HashMap<UniClass, UniClassConstraints>(constraintsMap);
+		this.constraintsMap = new HashMap<ClassLab, ClassLabConstraints>(constraintsMap);
 		this.pen_coursemin = pen_coursemin;
 		this.pen_labsmin = pen_labsmin;
 		this.pen_notpaired = pen_notpaired;
@@ -52,11 +52,11 @@ public class ConstraintChecker {
 				}
 			}
 			
-			for (UniClass cl1 : sl1.getUnmodifiableUniClasses()) {
+			for (ClassLab cl1 : sl1.getUnmodifiableUniClasses()) {
 				
 				if (!cl1.isLab()) {
 					for (Slot sl2 : conflictingSlots) {
-						for (UniClass cl2 : sl2.getUnmodifiableUniClasses()) {
+						for (ClassLab cl2 : sl2.getUnmodifiableUniClasses()) {
 							
 							if (cl1 != cl2 && cl2.isLab()
 									&& cl1.getFaculty().equals(cl2.getFaculty())
@@ -84,11 +84,11 @@ public class ConstraintChecker {
 				}
 			}
 			
-			for (UniClass cl1 : sl1.getUnmodifiableUniClasses()) {
-				UniClassConstraints constraints = constraintsMap.get(cl1);
+			for (ClassLab cl1 : sl1.getUnmodifiableUniClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl1);
 				
 				for (Slot sl2 : conflictingSlots) {
-					for (UniClass cl2 : sl2.getUnmodifiableUniClasses()) {
+					for (ClassLab cl2 : sl2.getUnmodifiableUniClasses()) {
 
 						if (cl1 != cl2 && constraints.notCompatibleContains(cl2)) {
 							return false;
@@ -103,8 +103,8 @@ public class ConstraintChecker {
 	
 	private boolean constrPartAssign(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (UniClass cl : sl.getUnmodifiableUniClasses()) {
-				UniClassConstraints constraints = constraintsMap.get(cl);
+			for (ClassLab cl : sl.getUnmodifiableUniClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.getPartassign() != null
 						&& constraints.getPartassign() != sl) {
@@ -118,8 +118,8 @@ public class ConstraintChecker {
 	
 	private boolean constrUnwanted(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (UniClass cl : sl.getUnmodifiableUniClasses()) {
-				UniClassConstraints constraints = constraintsMap.get(cl);
+			for (ClassLab cl : sl.getUnmodifiableUniClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.unwantedContains(sl)) {
 					return false;
@@ -134,7 +134,7 @@ public class ConstraintChecker {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
 			
 			if (sl.getStartTime().compareTo(LocalTime.of(18, 0)) < 0) {
-				for (UniClass cl : sl.getUnmodifiableUniClasses()) {
+				for (ClassLab cl : sl.getUnmodifiableUniClasses()) {
 					
 					if (!cl.isLab() && cl.getCourseSection() >= 9) {
 						return false;
@@ -148,10 +148,10 @@ public class ConstraintChecker {
 	
 	private boolean constr500Level(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (UniClass cl1 : sl.getUnmodifiableUniClasses()) {
+			for (ClassLab cl1 : sl.getUnmodifiableUniClasses()) {
 				
 				if (!cl1.isLab() && cl1.getCourseNumber().charAt(0) == '5') {
-					for (UniClass cl2 : sl.getUnmodifiableUniClasses()) {
+					for (ClassLab cl2 : sl.getUnmodifiableUniClasses()) {
 						
 						if (cl1 != cl2 && cl2.getCourseNumber().charAt(0) == '5') {
 							return false;
@@ -184,8 +184,8 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (UniClass cl : sl.getUnmodifiableUniClasses()) {
-				UniClassConstraints constraints = constraintsMap.get(cl);
+			for (ClassLab cl : sl.getUnmodifiableUniClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl);
 				Slot preference = constraints.getPreference();
 				
 				if (preference != null && preference != sl) {
@@ -210,12 +210,12 @@ public class ConstraintChecker {
 				}
 			}
 			
-			for (UniClass cl1 : sl1.getUnmodifiableUniClasses()) {
-				UniClassConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<UniClass> pair = constraints.getUnmodifiablePair();
+			for (ClassLab cl1 : sl1.getUnmodifiableUniClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl1);
+				ArrayList<ClassLab> pair = constraints.getUnmodifiablePair();
 				
 				for (Slot sl2 : conflictingSlots) {
-					for (UniClass cl2 : pair) {
+					for (ClassLab cl2 : pair) {
 						
 						if (!sl2.getUnmodifiableUniClasses().contains(cl2)) {
 							eval += pen_notpaired;
@@ -248,13 +248,13 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl: pr.getUnmodifiableSlots()) {
-			ArrayList<UniClass> classes = sl.getUnmodifiableUniClasses();
+			ArrayList<ClassLab> classes = sl.getUnmodifiableUniClasses();
 			
 			for (int i = 0; i < classes.size() - 1; i++) {
-				UniClass cl1 = classes.get(i);
+				ClassLab cl1 = classes.get(i);
 				
 				if (!cl1.isLab()) {
-					for (UniClass cl2 : classes.subList(i + 1, classes.size())) {
+					for (ClassLab cl2 : classes.subList(i + 1, classes.size())) {
 						
 						if (cl1.getFaculty().equals(cl2.getFaculty())
 								&& cl1.getCourseNumber().equals(cl2.getCourseNumber())

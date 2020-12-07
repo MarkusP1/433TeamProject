@@ -12,7 +12,7 @@ public class Slot {
     private int min;  // see above
     private boolean isLab;  //true if this is a lab
     
-    private ArrayList<UniClass> uniClasses = new ArrayList<UniClass>();
+    private ArrayList<ClassLab> uniClasses = new ArrayList<ClassLab>();
     
 	public Slot(ArrayList<DayOfWeek> days, LocalTime startTime, LocalTime endTime, int max, int min,
 			boolean isLab) {
@@ -42,11 +42,11 @@ public class Slot {
 	public boolean isLab() {
 		return isLab;
 	}
-	public void addUniClass(UniClass cl) {
+	public void addUniClass(ClassLab cl) {
 		uniClasses.add(cl);
 	}
-	public ArrayList<UniClass> getUnmodifiableUniClasses() {
-		return (ArrayList<UniClass>) Collections.unmodifiableList(uniClasses);
+	public ArrayList<ClassLab> getUnmodifiableUniClasses() {
+		return (ArrayList<ClassLab>) Collections.unmodifiableList(uniClasses);
 	}
 
     public boolean conflicts(Slot sl) {
@@ -56,5 +56,13 @@ public class Slot {
     			|| this.endTime.isBefore(sl.startTime);
     	
     	return daysConflict && timesConflict;
+    }
+    
+    // checks equality without checking min and max
+    public boolean weakEquals(Slot sl) {
+    	return (this.isLab == sl.isLab)
+    			&& this.startTime.equals(sl.startTime)
+    			&& this.endTime.equals(sl.endTime)
+    			&& this.days.equals(sl.days);
     }
 }

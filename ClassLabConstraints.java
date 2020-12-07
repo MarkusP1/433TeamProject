@@ -2,36 +2,36 @@
 
 import java.util.ArrayList;
 import java.util.Collections;
-public class UniClassConstraints {
+public class ClassLabConstraints {
 	
-	private ArrayList<UniClass> notCompatible;
+	private ArrayList<ClassLab> notCompatible;
 	private Slot partassign;
 	private ArrayList<Slot> unwanted;
 	private Slot preference;
 	private int pen_notInPreference;
-	private ArrayList<UniClass> pair;
+	private ArrayList<ClassLab> pair;
 	
-	public UniClassConstraints() {
+	public ClassLabConstraints() {
 		
 	}
 	
-	public UniClassConstraints(ArrayList<UniClass> notCompatible, Slot partassign,
+	public ClassLabConstraints(ArrayList<ClassLab> notCompatible, Slot partassign,
 			ArrayList<Slot> unwanted, Slot preference, int pen_notInPreference,
-			ArrayList<UniClass> pair) {
-		this.notCompatible = new ArrayList<UniClass>(notCompatible);
+			ArrayList<ClassLab> pair) {
+		this.notCompatible = new ArrayList<ClassLab>(notCompatible);
 		this.partassign = partassign;
 		this.unwanted = new ArrayList<Slot>(unwanted);
 		this.preference = preference;
 		this.pen_notInPreference = pen_notInPreference;
-		this.pair = new ArrayList<UniClass>(pair);
+		this.pair = new ArrayList<ClassLab>(pair);
 		
 	}
 	
-	public boolean notCompatibleContains(UniClass cl) {
+	public boolean notCompatibleContains(ClassLab cl) {
 		return notCompatible.contains(cl);
 	}
 	
-	public void addNotCompatible(UniClass cl) {
+	public void addNotCompatible(ClassLab cl) {
 		notCompatible.add(cl);
 	}
 
@@ -45,6 +45,10 @@ public class UniClassConstraints {
 
 	public boolean unwantedContains(Slot sl) {
 		return unwanted.contains(sl);
+	}
+	
+	public void addUnwanted(Slot sl) {
+		unwanted.add(sl);
 	}
 	
 	public Slot getPreference() {
@@ -63,8 +67,12 @@ public class UniClassConstraints {
 		this.pen_notInPreference = pen_notInPreference;
 	}
 	
-	public ArrayList<UniClass> getUnmodifiablePair() {
-		return (ArrayList<UniClass>) Collections.unmodifiableList(pair);
+	public ArrayList<ClassLab> getUnmodifiablePair() {
+		return (ArrayList<ClassLab>) Collections.unmodifiableList(pair);
+	}
+	
+	public void addPair(ClassLab cl) {
+		pair.add(cl);
 	}
 
 }

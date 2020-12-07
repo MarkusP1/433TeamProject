@@ -4,7 +4,7 @@ import java.util.Collections;
 
 
 public class Prob{
-    ArrayList<UniClass> stuffToBePlaced = new ArrayList<UniClass>();
+    ArrayList<ClassLab> stuffToBePlaced = new ArrayList<ClassLab>();
     ArrayList<Slot> slots = new ArrayList<Slot>();
     
     public ArrayList<Slot> getUnmodifiableSlots() {

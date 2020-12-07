@@ -1,7 +1,7 @@
 
 
 
-public class UniClass {
+public class ClassLab {
 	
     private String faculty; //CPSC, SENG, etc.
     private String courseNumber;   //the 433 in CPSC 433
@@ -9,7 +9,7 @@ public class UniClass {
     private boolean isLab;  //true if this is a lab
     private int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
     
-	public UniClass(String faculty, String courseNumber, int courseSection, boolean isLab, int labSection) {
+	public ClassLab(String faculty, String courseNumber, int courseSection, boolean isLab, int labSection) {
 		this.faculty = new String(faculty);
 		this.courseNumber = new String(courseNumber);
 		this.courseSection = courseSection;
@@ -38,7 +38,7 @@ public class UniClass {
 	}
 
 	// @Overrides
-	public boolean equals(UniClass other) {
+	public boolean equals(ClassLab other) {
 		return this.faculty.equals(other.faculty)
 				&& this.courseNumber.equals(other.courseNumber)
 				&& this.courseSection == other.courseSection

@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 
 public class ReaderThing {
-	private static ArrayList<UniClass> stuffToBePlaced = new ArrayList<UniClass>();
+	private static ArrayList<ClassLab> stuffToBePlaced = new ArrayList<ClassLab>();
 	private static ArrayList<Slot> slots = new ArrayList<Slot>();
-	private static HashMap<UniClass, UniClassConstraints> constraintsMap;
+	private static HashMap<ClassLab, ClassLabConstraints> constraintsMap;
 
 	private static Slot constructSlot(String[] identifier, boolean isLab) {
 		ArrayList<DayOfWeek> days;
@@ -71,7 +71,7 @@ public class ReaderThing {
 		return new Slot(days, startTime, endTime, courseMax, courseMin, isLab);
 	}
 	
-	private static UniClass constructUniClass(String[] identifier) {
+	private static ClassLab constructUniClass(String[] identifier) {
 		String faculty; //CPSC, SENG, etc.
 	    String courseNumber;   //the 433 in CPSC 433
 	    int courseSection;  //section 1, 2, etc., set to 0 if its a lab for every lecture section
@@ -106,17 +106,11 @@ public class ReaderThing {
 			labSection = Integer.parseInt(identifier[3]);
 		}
 		
-		return new UniClass(faculty, courseNumber, courseSection, isLab, labSection);
-	}
-	
-	private static UniClass searchForUniClass(String identifier, ArrayList<UniClass> uniClasses) {
-		
-		
-		return null;
+		return new ClassLab(faculty, courseNumber, courseSection, isLab, labSection);
 	}
 
 	public static void main(String args[]){
-		String faculty; //CPSC, SENG, etc.
+		/*String faculty; //CPSC, SENG, etc.
 	    String courseNumber;   //the 433 in CPSC 433
 	    int courseSection;  //section 1, 2, etc., set to 0 if its a lab for every lecture section
 	    boolean isLab;  //true if this is a lab
@@ -125,10 +119,10 @@ public class ReaderThing {
 	    LocalTime startTime;
 	    LocalTime endTime;
 	    int courseMax;  //coursmax is also labmax for the slot if this is a lab
-		int courseMin;  //see above
+		int courseMin;*/ //see above
 		String[] words;
-		UniClass classLabToAdd;
-		Slot courseSlotToAdd;
+		/*UniClass classLabToAdd;
+		Slot courseSlotToAdd;*/
 		
 		ArrayList<String> input = collectInput(args); 
 		int i = 0;
@@ -276,8 +270,8 @@ public class ReaderThing {
 			i++;
 		}
 
-		constraintsMap = (HashMap<UniClass, UniClassConstraints>) stuffToBePlaced.stream().collect(Collectors.toMap(
-				cl -> cl, cl -> new UniClassConstraints()));
+		constraintsMap = (HashMap<ClassLab, ClassLabConstraints>) stuffToBePlaced.stream().collect(Collectors.toMap(
+				cl -> cl, cl -> new ClassLabConstraints()));
 
 		i++;
 		//this is not compatible
@@ -287,13 +281,16 @@ public class ReaderThing {
 			if (!(workingOn.contains("Not"))){
 				//at this point workonOn is a string similar to: CPSC 567 LEC 01, CPSC 433 LEC 01
 				String[] cls = workingOn.split(",");
-				UniClass parsedcl1 = constructUniClass(cls[0].split(" "));
-				UniClass parsedcl2 = constructUniClass(cls[1].split(" "));
-				UniClass storedcl1 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl1))
+				ClassLab parsedcl1 = constructUniClass(cls[0].split(" "));
+				ClassLab parsedcl2 = constructUniClass(cls[1].split(" "));
+				
+				ClassLab storedcl1 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl1))
 						.findAny().orElse(null);
-				UniClass storedcl2 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl2))
+				ClassLab storedcl2 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl2))
 						.findAny().orElse(null);
 				
+				constraintsMap.get(storedcl1).addNotCompatible(storedcl2);
+				constraintsMap.get(storedcl2).addNotCompatible(storedcl1);
 				
 			}
 			i++;
@@ -305,6 +302,16 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Unw"))){
 				//at this point workingOn is a string similar to: CPSC 433 LEC 01, MO, 8:00
+				words = workingOn.split(",");
+				ClassLab parsedcl = constructUniClass(words[0].split(" "));
+				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLab());
+				
+				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
+						.findAny().orElse(null);
+				Slot storedsl = slots.stream().filter(sl -> sl.weakEquals(parsedsl))
+						.findAny().orElse(null);
+				
+				constraintsMap.get(storedcl).addUnwanted(storedsl);
 			}
 			i++;
 		}
@@ -316,7 +323,19 @@ public class ReaderThing {
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Pre"))){
-
+				words = workingOn.split(",");
+				ClassLab parsedcl = constructUniClass(words[2].split(" "));
+				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 0, 2), parsedcl.isLab());
+				int prefRating = Integer.parseInt(words[4]);
+				
+				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
+						.findAny().orElse(null);
+				Slot storedsl = slots.stream().filter(sl -> sl.weakEquals(parsedsl))
+						.findAny().orElse(null);
+				
+				ClassLabConstraints constraints = constraintsMap.get(storedcl);
+				constraints.setPreference(storedsl);
+				constraints.setPen_notInPreference(prefRating);
 			}
 			i++;
 		}
@@ -329,6 +348,17 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Pai"))){
 				//at this point workingOn is a string similar to: SENG 311 LEC 01, CPSC 567 LEC 01
+				String[] cls = workingOn.split(",");
+				ClassLab parsedcl1 = constructUniClass(cls[0].split(" "));
+				ClassLab parsedcl2 = constructUniClass(cls[1].split(" "));
+				
+				ClassLab storedcl1 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl1))
+						.findAny().orElse(null);
+				ClassLab storedcl2 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl2))
+						.findAny().orElse(null);
+				
+				constraintsMap.get(storedcl1).addPair(storedcl2);
+				constraintsMap.get(storedcl2).addPair(storedcl1);
 			}
 			i++;
 		}
@@ -341,6 +371,16 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Part"))){
 				//at this point workingOn is a string similar to: SENG 311 LEC 01, MO, 8:00
+				words = workingOn.split(",");
+				ClassLab parsedcl = constructUniClass(words[0].split(" "));
+				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLab());
+				
+				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
+						.findAny().orElse(null);
+				Slot storedsl = slots.stream().filter(sl -> sl.weakEquals(parsedsl))
+						.findAny().orElse(null);
+				
+				constraintsMap.get(storedcl).setPartassign(storedsl);
 			}
 			i++;
 		}
@@ -364,7 +404,7 @@ public class ReaderThing {
 		return totalInput;
 	}
 
-	public static ArrayList<UniClass> getCourses() {
+	public static ArrayList<ClassLab> getCourses() {
 		return stuffToBePlaced;
 	}
 
