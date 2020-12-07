@@ -50,7 +50,7 @@ public class Slot {
 	}
 
     public boolean conflicts(Slot sl) {
-    	boolean daysConflict = sl.days.stream()
+    	boolean daysConflict = this.days.stream()
     			.anyMatch(d -> sl.days.contains(d));
     	boolean timesConflict = this.startTime.isAfter(sl.endTime) 
     			|| this.endTime.isBefore(sl.startTime);
