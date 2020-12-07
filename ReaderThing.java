@@ -14,6 +14,7 @@ public class ReaderThing {
 	private static ArrayList<Slot> slots = new ArrayList<Slot>();
 	private static HashMap<ClassLab, ClassLabConstraints> constraintsMap;
 
+	
 	private static Slot constructSlot(String[] identifier, boolean isLab) {
 		ArrayList<DayOfWeek> days;
 	    LocalTime startTime;
@@ -384,6 +385,22 @@ public class ReaderThing {
 			}
 			i++;
 		}
+		
+		
+		/*ClassLab cl313 = stuffToBePlaced.stream()
+				.filter(cl -> cl.getFaculty().equals("CPSC") 
+						&& cl.getCourseNumber().equals("313"))
+				.findAny().orElse(null);
+		ClassLab cl413 = stuffToBePlaced.stream()
+				.filter(cl -> cl.getFaculty().equals("CPSC") 
+						&& cl.getCourseNumber().equals("413"))
+				.findAny().orElse(null);
+		if (cl313 != null) {
+			// CPSC 313 is included
+			ClassLab cl813 = new ClassLab("CPSC", "813", 1, false, 0);
+			Slot 
+			slots.stream().filter(predicate)
+		}*/
 	}
 
 	public static ArrayList<String> collectInput(String[] args){
