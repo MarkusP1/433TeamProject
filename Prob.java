@@ -18,4 +18,7 @@ public class Prob{
     public void setEval(int eval) {
     	
     }
+    //may want variables for constr and eval
+    //to set the arraylists use something like courseSlots = ReaderThing.getCourses();
+
 }
