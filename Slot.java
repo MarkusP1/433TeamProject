@@ -85,9 +85,10 @@ public class Slot {
     public String toString() {
     	String slotType = isLab ? "Lab" : "Lecture";
     	
-    	return slotType + "slot on "
+    	return slotType + " slot on "
     			+ days.toString() + " from "
     			+ startTime.toString() + " to "
-    			+ startTime.toString();
+    			+ startTime.toString() + " of "
+    			+ classes.toString();
     }
 }
