@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ReaderThing {
@@ -403,20 +404,78 @@ public class ReaderThing {
 		}
 		
 		
-		/*ClassLab cl313 = stuffToBePlaced.stream()
+		// deal with CPSC 313/413 and CPSC 813/913
+		
+		List<ClassLab> cl313s = stuffToBePlaced.stream()
 				.filter(cl -> cl.getFaculty().equals("CPSC") 
 						&& cl.getCourseNumber().equals("313"))
-				.findAny().orElse(null);
-		ClassLab cl413 = stuffToBePlaced.stream()
+				.collect(Collectors.toList());
+		List<ClassLab> cl413s = stuffToBePlaced.stream()
 				.filter(cl -> cl.getFaculty().equals("CPSC") 
 						&& cl.getCourseNumber().equals("413"))
-				.findAny().orElse(null);
-		if (cl313 != null) {
+				.collect(Collectors.toList());
+		List<ClassLab> cl813s = stuffToBePlaced.stream()
+				.filter(cl -> cl.getFaculty().equals("CPSC") 
+						&& cl.getCourseNumber().equals("813"))
+				.collect(Collectors.toList());
+		List<ClassLab> cl913s = stuffToBePlaced.stream()
+				.filter(cl -> cl.getFaculty().equals("CPSC") 
+						&& cl.getCourseNumber().equals("913"))
+				.collect(Collectors.toList());
+		if (cl313s.size() != 0) {
 			// CPSC 313 is included
-			ClassLab cl813 = new ClassLab("CPSC", "813", 1, false, 0);
-			Slot 
-			slots.stream().filter(predicate)
-		}*/
+			if (cl813s.size() != 0) {
+				for (ClassLab cl813 : cl813s) {
+					slots.get(slots.indexOf(constructSlot(new String[]{"TU", "18:00"}, true)))
+							.addClassLab(cl813);
+					stuffToBePlaced.remove(cl813);
+
+					// fill not compatible contraint
+					for (ClassLab cl313 : cl313s) {
+						ClassLabConstraints toCopy = constraintsMap.get(cl313);
+						ClassLabConstraints toFill = constraintsMap.get(cl813);
+						
+						for (ClassLab cl : toCopy.getUnmodifiableNotCompatible()) {
+							if (!toFill.notCompatibleContains(cl)) {
+								toFill.addNotCompatible(cl);
+								constraintsMap.get(cl).addNotCompatible(cl813);
+							}
+						}
+						if (!toFill.notCompatibleContains(cl313)) {
+							toFill.addNotCompatible(cl313);
+							constraintsMap.get(cl313).addNotCompatible(cl813);
+						}
+					}
+				}
+			}
+		}
+		if (cl413s.size() != 0) {
+			// CPSC 313 is included
+			if (cl913s.size() != 0) {
+				for (ClassLab cl913 : cl913s) {
+					slots.get(slots.indexOf(constructSlot(new String[]{"TU", "18:00"}, true)))
+							.addClassLab(cl913);
+					stuffToBePlaced.remove(cl913);
+				
+					// fill not compatible contraint
+					for (ClassLab cl413 : cl413s) {
+						ClassLabConstraints toCopy = constraintsMap.get(cl413);
+						ClassLabConstraints toFill = constraintsMap.get(cl913);
+						
+						for (ClassLab cl : toCopy.getUnmodifiableNotCompatible()) {
+							if (!toFill.notCompatibleContains(cl)) {
+								toFill.addNotCompatible(cl);
+								constraintsMap.get(cl).addNotCompatible(cl913);
+							}
+						}
+						if (!toFill.notCompatibleContains(cl413)) {
+							toFill.addNotCompatible(cl413);
+							constraintsMap.get(cl413).addNotCompatible(cl913);
+						}
+					}
+				}
+			}
+		}
 		
 		c = new ConstraintChecker(constraintsMap, pen_coursemin, pen_labsmin, pen_notpaired, 
 				pen_section, w_minfilled, w_pref, w_pair, w_secdiff, debug);

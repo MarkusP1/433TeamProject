@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Prob {
 	boolean constr;
@@ -18,8 +19,8 @@ public class Prob {
     	this.courseSlots = new ArrayList<Slot>();
     }
     
-	public ArrayList<Slot> getUnmodifiableSlots() {
-    	return (ArrayList<Slot>) Collections.unmodifiableList(courseSlots);
+	public List<Slot> getUnmodifiableSlots() {
+    	return Collections.unmodifiableList(courseSlots);
     }
 	
     public void setConstr(boolean constr) {

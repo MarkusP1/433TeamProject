@@ -4,6 +4,7 @@ import java.lang.Math;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ConstraintChecker {
 	
@@ -121,7 +122,7 @@ public class ConstraintChecker {
 				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.getPartassign() != null
-						&& constraints.getPartassign() != sl) {
+						&& constraints.getPartassign().equals(sl)) {
 					return false;
 				}
 			}
@@ -202,7 +203,7 @@ public class ConstraintChecker {
 				ClassLabConstraints constraints = constraintsMap.get(cl);
 				Slot preference = constraints.getPreference();
 				
-				if (preference != null && preference != sl) {
+				if (preference != null && !preference.equals(sl)) {
 					eval += constraints.getPen_notInPreference();
 				}
 			}
@@ -226,7 +227,7 @@ public class ConstraintChecker {
 			
 			for (ClassLab cl1 : sl1.getUnmodifiableClasses()) {
 				ClassLabConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<ClassLab> pair = constraints.getUnmodifiablePair();
+				List<ClassLab> pair = constraints.getUnmodifiablePair();
 				
 				for (Slot sl2 : conflictingSlots) {
 					for (ClassLab cl2 : pair) {
@@ -239,22 +240,6 @@ public class ConstraintChecker {
 			}
 		}
 		
-		/*for (Slot sl : pr.getUnmodifiableSlots()) {
-			ArrayList<UniClass> classes = sl.getUnmodifiableUniClasses();
-			
-			for (UniClass cl1 : classes) {
-				UniClassConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<UniClass> pair = constraints.getUnmodifiablePair();
-				
-				for (UniClass cl2 : pair) {
-					
-					if (!classes.contains(cl2)) {
-						eval += pen_notpaired;
-					}
-				}
-			}
-		}*/
-		
 		return eval;
 	}
 	
@@ -262,7 +247,7 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl: pr.getUnmodifiableSlots()) {
-			ArrayList<ClassLab> classes = sl.getUnmodifiableClasses();
+			List<ClassLab> classes = sl.getUnmodifiableClasses();
 			
 			for (int i = 0; i < classes.size() - 1; i++) {
 				ClassLab cl1 = classes.get(i);

@@ -37,13 +37,18 @@ public class ClassLab {
 		return labSection;
 	}
 
-	// @Overrides
-	public boolean equals(ClassLab other) {
-		return this.faculty.equals(other.faculty)
-				&& this.courseNumber.equals(other.courseNumber)
-				&& this.courseSection == other.courseSection
-				&& (this.isLab == other.isLab)
-				&& this.labSection == other.labSection;
+    // @Overrides Object.equals(Object obj)
+	public boolean equals(Object obj) {
+		if (obj.getClass().equals(ClassLab.class)) {
+			ClassLab cl = (ClassLab) obj;
+			return this.faculty.equals(cl.faculty)
+					&& this.courseNumber.equals(cl.courseNumber)
+					&& this.courseSection == cl.courseSection
+					&& (this.isLab == cl.isLab)
+					&& this.labSection == cl.labSection;
+		} else {
+			return super.equals(obj);
+		}
 	}
     
     // @Overrides Object.toString()
