@@ -1,4 +1,4 @@
-public class leaf{
+public class Leaf{
 	Prob pr;
 	char sol; // can be y or ?
 	int depth;
@@ -6,7 +6,7 @@ public class leaf{
 	boolean constr;
 
 	
-	leaf(Prob pr, int depth){
+	Leaf(Prob pr, int depth){
 		this.pr = pr;
 		this.depth = depth;
 		this.sol = '?';

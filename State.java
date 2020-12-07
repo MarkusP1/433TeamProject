@@ -3,12 +3,12 @@ import java.util.*;
 
 
 
-public class state{
+public class State{
 	
 	int bestsol;//This keeps track of the best known solution's eval*. 
-	LinkedList<leaf> leaves = new LinkedList<leaf>();//The list of leaves
+	LinkedList<Leaf> leaves = new LinkedList<Leaf>();//The list of leaves
 	
-	leaf selected;//This is the leaf that will be operated on
+	Leaf selected;//This is the leaf that will be operated on
 	int selectedIndex;//This is the above leaf's index.
 	
 	ConstraintChecker c;//This is the ConstraintChecker that goes with the intial situation. 
@@ -16,7 +16,7 @@ public class state{
 	boolean allSolved = false;//If there are any unsolved nodes, this is true, false otherwise.
 	
 	
-	state(LinkedList<leaf> leaves,ConstraintChecker c){//Constructor
+	State(LinkedList<Leaf> leaves,ConstraintChecker c){//Constructor
 		this.leaves = leaves;
 		this.bestsol = -1;
 		this.c = c;
@@ -75,13 +75,13 @@ public class state{
             return null;
         else{
             Prob labChild = new Prob(p);
-            classLab beingAdded = labChild.stuffToBePlaced.remove(0);
+            ClassLab beingAdded = labChild.stuffToBePlaced.remove(0);
             return createChildren(labChild, beingAdded);
 
         }
     }
 	
-    LinkedList<Prob> createChildren(Prob labChild, classLab beingAdded)
+    LinkedList<Prob> createChildren(Prob labChild, ClassLab beingAdded)
     {
         LinkedList<Prob> children = new LinkedList<Prob>();
 
@@ -92,7 +92,7 @@ public class state{
             //or if the item being added is a not lab and the slot is not a lab
             if((labChild.courseSlots.get(i).isLab() && beingAdded.isLab()) ||(!labChild.courseSlots.get(i).isLab() && !beingAdded.isLab()) ) {
                 Prob child = new Prob(labChild);
-                labChild.courseSlots.get(i).classes.add(beingAdded);
+                labChild.courseSlots.get(i).addClassLab(beingAdded);
                 children.add(child);
             }
 
@@ -104,7 +104,7 @@ public class state{
 	void ftrans(){
 		LinkedList<Prob> children = div(leaves.get(selectedIndex).pr);//Making a linked list of child nodes
 		
-		LinkedList<leaf> newLeaves = new LinkedList<leaf>();
+		LinkedList<Leaf> newLeaves = new LinkedList<Leaf>();
 		
 		int parentdepth = leaves.get(selectedIndex).depth;
 	
@@ -112,7 +112,7 @@ public class state{
 			newLeaves.add(leaves.get(i));
 		}
 		for(int i = 0; i<children.size();i++){//Adding all a bunch of leaves containing the problems div gave
-			leaf l = new leaf(children.get(i), parentdepth+1);
+			Leaf l = new Leaf(children.get(i), parentdepth+1);
 			l.setEval(c);
 			l.setConstr(c);
 			

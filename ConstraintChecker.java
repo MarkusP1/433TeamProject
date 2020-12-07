@@ -7,24 +7,29 @@ import java.util.HashMap;
 
 public class ConstraintChecker {
 	
-	/*HashMap<classLab, ArrayList<classLab>> notcompatibleMap;
-	HashMap<classLab, Slot> partassignMap;
-	HashMap<classLab, ArrayList<Slot>> unwantedMap;
-	HashMap<classLab, ConstrPenPair<Slot>> preferenceMap;
-	HashMap<classLab, classLab> pairMap;*/
+	/*HashMap<UniClass, ArrayList<UniClass>> notcompatibleMap;
+	HashMap<UniClass, Slot> partassignMap;
+	HashMap<UniClass, ArrayList<Slot>> unwantedMap;
+	HashMap<UniClass, ConstrPenPair<Slot>> preferenceMap;
+	HashMap<UniClass, UniClass> pairMap;*/
 	
-	HashMap<classLab, classLabConstraints> constraintsMap;
+	HashMap<ClassLab, ClassLabConstraints> constraintsMap;
 	
 	int pen_coursemin;
 	int pen_labsmin;
 	int pen_notpaired;
 	int pen_section;
+	
+	float w_minfilled;
+	float w_pref;
+	float w_pair;
+	float w_secdiff;
 
 	boolean debug;
 	
-	public ConstraintChecker(HashMap<classLab, classLabConstraints> constraintsMap,
+	public ConstraintChecker(HashMap<ClassLab, ClassLabConstraints> constraintsMap,
 			int pen_coursemin, int pen_labsmin, int pen_notpaired, boolean debug) {
-		this.constraintsMap = new HashMap<classLab, classLabConstraints>(constraintsMap);
+		this.constraintsMap = new HashMap<ClassLab, ClassLabConstraints>(constraintsMap);
 		this.pen_coursemin = pen_coursemin;
 		this.pen_labsmin = pen_labsmin;
 		this.pen_notpaired = pen_notpaired;
@@ -33,7 +38,10 @@ public class ConstraintChecker {
 	
 	private boolean constrMax(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			if (sl.getUnmodifiableclassLabs().size() > sl.getMax()) {
+			if (sl.getUnmodifiableClasses().size() > sl.getMax()) {
+				if (debug) {
+					System.out.println("max constraint violated by:\n" + sl);
+				}
 				return false;
 			}
 		}
@@ -52,11 +60,11 @@ public class ConstraintChecker {
 				}
 			}
 			
-			for (classLab cl1 : sl1.getUnmodifiableclassLabs()) {
+			for (ClassLab cl1 : sl1.getUnmodifiableClasses()) {
 				
 				if (!cl1.isLab()) {
 					for (Slot sl2 : conflictingSlots) {
-						for (classLab cl2 : sl2.getUnmodifiableclassLabs()) {
+						for (ClassLab cl2 : sl2.getUnmodifiableClasses()) {
 							
 							if (cl1 != cl2 && cl2.isLab()
 									&& cl1.getFaculty().equals(cl2.getFaculty())
@@ -84,11 +92,11 @@ public class ConstraintChecker {
 				}
 			}
 			
-			for (classLab cl1 : sl1.getUnmodifiableclassLabs()) {
-				classLabConstraints constraints = constraintsMap.get(cl1);
+			for (ClassLab cl1 : sl1.getUnmodifiableClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl1);
 				
 				for (Slot sl2 : conflictingSlots) {
-					for (classLab cl2 : sl2.getUnmodifiableclassLabs()) {
+					for (ClassLab cl2 : sl2.getUnmodifiableClasses()) {
 
 						if (cl1 != cl2 && constraints.notCompatibleContains(cl2)) {
 							return false;
@@ -103,8 +111,8 @@ public class ConstraintChecker {
 	
 	private boolean constrPartAssign(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (classLab cl : sl.getUnmodifiableclassLabs()) {
-				classLabConstraints constraints = constraintsMap.get(cl);
+			for (ClassLab cl : sl.getUnmodifiableClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.getPartassign() != null
 						&& constraints.getPartassign() != sl) {
@@ -118,8 +126,8 @@ public class ConstraintChecker {
 	
 	private boolean constrUnwanted(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (classLab cl : sl.getUnmodifiableclassLabs()) {
-				classLabConstraints constraints = constraintsMap.get(cl);
+			for (ClassLab cl : sl.getUnmodifiableClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.unwantedContains(sl)) {
 					return false;
@@ -134,7 +142,7 @@ public class ConstraintChecker {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
 			
 			if (sl.getStartTime().compareTo(LocalTime.of(18, 0)) < 0) {
-				for (classLab cl : sl.getUnmodifiableclassLabs()) {
+				for (ClassLab cl : sl.getUnmodifiableClasses()) {
 					
 					if (!cl.isLab() && cl.getCourseSection() >= 9) {
 						return false;
@@ -148,10 +156,10 @@ public class ConstraintChecker {
 	
 	private boolean constr500Level(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (classLab cl1 : sl.getUnmodifiableclassLabs()) {
+			for (ClassLab cl1 : sl.getUnmodifiableClasses()) {
 				
 				if (!cl1.isLab() && cl1.getCourseNumber().charAt(0) == '5') {
-					for (classLab cl2 : sl.getUnmodifiableclassLabs()) {
+					for (ClassLab cl2 : sl.getUnmodifiableClasses()) {
 						
 						if (cl1 != cl2 && cl2.getCourseNumber().charAt(0) == '5') {
 							return false;
@@ -168,11 +176,11 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			if (sl.getUnmodifiableclassLabs().size() < sl.getMin()) {
+			if (sl.getUnmodifiableClasses().size() < sl.getMin()) {
 				if (!sl.isLab()) {
-					eval += Math.max(sl.getMin() - sl.getUnmodifiableclassLabs().size(), 0) * pen_coursemin;
+					eval += Math.max(sl.getMin() - sl.getUnmodifiableClasses().size(), 0) * pen_coursemin;
 				} else {
-					eval += Math.max(sl.getMin() - sl.getUnmodifiableclassLabs().size(), 0) * pen_labsmin;
+					eval += Math.max(sl.getMin() - sl.getUnmodifiableClasses().size(), 0) * pen_labsmin;
 				}
 			}
 		}
@@ -184,8 +192,8 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl : pr.getUnmodifiableSlots()) {
-			for (classLab cl : sl.getUnmodifiableclassLabs()) {
-				classLabConstraints constraints = constraintsMap.get(cl);
+			for (ClassLab cl : sl.getUnmodifiableClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl);
 				Slot preference = constraints.getPreference();
 				
 				if (preference != null && preference != sl) {
@@ -210,14 +218,14 @@ public class ConstraintChecker {
 				}
 			}
 			
-			for (classLab cl1 : sl1.getUnmodifiableclassLabs()) {
-				classLabConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<classLab> pair = constraints.getUnmodifiablePair();
+			for (ClassLab cl1 : sl1.getUnmodifiableClasses()) {
+				ClassLabConstraints constraints = constraintsMap.get(cl1);
+				ArrayList<ClassLab> pair = constraints.getUnmodifiablePair();
 				
 				for (Slot sl2 : conflictingSlots) {
-					for (classLab cl2 : pair) {
+					for (ClassLab cl2 : pair) {
 						
-						if (!sl2.getUnmodifiableclassLabs().contains(cl2)) {
+						if (!sl2.getUnmodifiableClasses().contains(cl2)) {
 							eval += pen_notpaired;
 						}
 					}
@@ -226,13 +234,13 @@ public class ConstraintChecker {
 		}
 		
 		/*for (Slot sl : pr.getUnmodifiableSlots()) {
-			ArrayList<classLab> classes = sl.getUnmodifiableclassLabs();
+			ArrayList<UniClass> classes = sl.getUnmodifiableUniClasses();
 			
-			for (classLab cl1 : classes) {
-				classLabConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<classLab> pair = constraints.getUnmodifiablePair();
+			for (UniClass cl1 : classes) {
+				UniClassConstraints constraints = constraintsMap.get(cl1);
+				ArrayList<UniClass> pair = constraints.getUnmodifiablePair();
 				
-				for (classLab cl2 : pair) {
+				for (UniClass cl2 : pair) {
 					
 					if (!classes.contains(cl2)) {
 						eval += pen_notpaired;
@@ -248,13 +256,13 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl: pr.getUnmodifiableSlots()) {
-			ArrayList<classLab> classes = sl.getUnmodifiableclassLabs();
+			ArrayList<ClassLab> classes = sl.getUnmodifiableClasses();
 			
 			for (int i = 0; i < classes.size() - 1; i++) {
-				classLab cl1 = classes.get(i);
+				ClassLab cl1 = classes.get(i);
 				
 				if (!cl1.isLab()) {
-					for (classLab cl2 : classes.subList(i + 1, classes.size())) {
+					for (ClassLab cl2 : classes.subList(i + 1, classes.size())) {
 						
 						if (cl1.getFaculty().equals(cl2.getFaculty())
 								&& cl1.getCourseNumber().equals(cl2.getCourseNumber())
@@ -280,10 +288,10 @@ public class ConstraintChecker {
 	public void evalStar(Prob pr) {
 		int eval = 0;
 		
-		eval += evalMinFilled(pr);
-		eval += evalPref(pr);
-		eval += evalPair(pr);
-		eval += evalSecdiff(pr);
+		eval += evalMinFilled(pr) * w_minfilled;
+		eval += evalPref(pr) * w_pref;
+		eval += evalPair(pr) * w_pair;
+		eval += evalSecdiff(pr) * w_secdiff;
 		
 		pr.setEval(eval);
 	}

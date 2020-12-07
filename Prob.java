@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class Prob{
+public class Prob {
 	boolean constr;
 	int eval;
-    ArrayList<classLab> stuffToBePlaced = new ArrayList<classLab>();
+    ArrayList<ClassLab> stuffToBePlaced = new ArrayList<ClassLab>();
     ArrayList<Slot> courseSlots = new ArrayList<Slot>();
 	
 	public ArrayList<Slot> getUnmodifiableSlots() {

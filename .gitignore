@@ -1,6 +1,7 @@
 /And$Prob.class
 /And$State.class
 /And.class
+<<<<<<< HEAD
 /ConstraintChecker.class
 /Prob.class
 /ReaderThing.class
@@ -9,3 +10,22 @@
 /classLabConstraints.class
 /leaf.class
 /state.class
+=======
+/ReaderThing.class
+/AndTreeSearch$Prob.class
+/AndTreeSearch$State.class
+/AndTreeSearch.class
+/Prob.class
+/classLab.class
+/courseSlot.class
+/Slot.class
+/UniClass.class
+/ConstraintChecker.class
+/UniClassConstraints.class
+/state.class
+/leaf.class
+/ClassLab.class
+/ClassLabConstraints.class
+>>>>>>> refs/heads/sean
+/State.class
+/Leaf.class
