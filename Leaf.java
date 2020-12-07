@@ -24,4 +24,9 @@ public class Leaf{
 		c.constrStar(pr);
 		constr = pr.getConstr();
 	}
+	
+	public String toString() {
+		return "Leaf: " + pr.toString() + "\n"
+				+ sol + " " + depth + " " + eval + " " + constr;
+	}
 }

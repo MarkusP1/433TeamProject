@@ -50,4 +50,10 @@ public class Prob {
         }
     }
 
+    public String toString() {
+    	return "Prob with\n"
+    			+ stuffToBePlaced.toString() + "\n"
+    			+ courseSlots.toString();
+    }
+    
 }

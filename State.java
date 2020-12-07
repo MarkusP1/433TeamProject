@@ -26,6 +26,7 @@ public class State{
 
 
 	void erw(ConstraintChecker c){
+		System.out.println(leaves.toString());
 		if(allSolved){
 		System.out.println("stillborn");
 		}
@@ -100,7 +101,7 @@ public class State{
             //or if the item being added is a not lab and the slot is not a lab
             if((labChild.courseSlots.get(i).isLab() && beingAdded.isLab()) ||(!labChild.courseSlots.get(i).isLab() && !beingAdded.isLab()) ) {
                 Prob child = new Prob(labChild);
-                labChild.courseSlots.get(i).addClassLab(beingAdded);
+                child.courseSlots.get(i).addClassLab(beingAdded);
                 children.add(child);
             }
 
