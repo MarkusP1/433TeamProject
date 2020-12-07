@@ -11,6 +11,10 @@ public class UniClassConstraints {
 	private int pen_notInPreference;
 	private ArrayList<UniClass> pair;
 	
+	public UniClassConstraints() {
+		
+	}
+	
 	public UniClassConstraints(ArrayList<UniClass> notCompatible, Slot partassign,
 			ArrayList<Slot> unwanted, Slot preference, int pen_notInPreference,
 			ArrayList<UniClass> pair) {
@@ -26,11 +30,19 @@ public class UniClassConstraints {
 	public boolean notCompatibleContains(UniClass cl) {
 		return notCompatible.contains(cl);
 	}
+	
+	public void addNotCompatible(UniClass cl) {
+		notCompatible.add(cl);
+	}
 
 	public Slot getPartassign() {
 		return partassign;
 	}
 	
+	public void setPartassign(Slot partassign) {
+		this.partassign = partassign;
+	}
+
 	public boolean unwantedContains(Slot sl) {
 		return unwanted.contains(sl);
 	}
@@ -38,9 +50,17 @@ public class UniClassConstraints {
 	public Slot getPreference() {
 		return preference;
 	}
+
+	public void setPreference(Slot preference) {
+		this.preference = preference;
+	}
 	
 	public int getPen_notInPreference() {
 		return pen_notInPreference;
+	}
+
+	public void setPen_notInPreference(int pen_notInPreference) {
+		this.pen_notInPreference = pen_notInPreference;
 	}
 	
 	public ArrayList<UniClass> getUnmodifiablePair() {

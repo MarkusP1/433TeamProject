@@ -37,5 +37,13 @@ public class UniClass {
 		return labSection;
 	}
 
+	// @Overrides
+	public boolean equals(UniClass other) {
+		return this.faculty.equals(other.faculty)
+				&& this.courseNumber.equals(other.courseNumber)
+				&& this.courseSection == other.courseSection
+				&& (this.isLab == other.isLab)
+				&& this.labSection == other.labSection;
+	}
     
 }
