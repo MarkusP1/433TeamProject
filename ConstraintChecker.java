@@ -19,6 +19,11 @@ public class ConstraintChecker {
 	int pen_labsmin;
 	int pen_notpaired;
 	int pen_section;
+	
+	float w_minfilled;
+	float w_pref;
+	float w_pair;
+	float w_secdiff;
 
 	boolean debug;
 	
@@ -34,6 +39,9 @@ public class ConstraintChecker {
 	private boolean constrMax(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
 			if (sl.getUnmodifiableUniClasses().size() > sl.getMax()) {
+				if (debug) {
+					System.out.println("max constraint violated by:\n" + sl);
+				}
 				return false;
 			}
 		}
@@ -280,10 +288,10 @@ public class ConstraintChecker {
 	public void evalStar(Prob pr) {
 		int eval = 0;
 		
-		eval += evalMinFilled(pr);
-		eval += evalPref(pr);
-		eval += evalPair(pr);
-		eval += evalSecdiff(pr);
+		eval += evalMinFilled(pr) * w_minfilled;
+		eval += evalPref(pr) * w_pref;
+		eval += evalPair(pr) * w_pair;
+		eval += evalSecdiff(pr) * w_secdiff;
 		
 		pr.setEval(eval);
 	}

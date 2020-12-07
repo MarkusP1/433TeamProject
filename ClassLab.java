@@ -46,4 +46,19 @@ public class ClassLab {
 				&& this.labSection == other.labSection;
 	}
     
+    // @Overrides Object.toString()
+    public String toString() {
+    	String sectionDesc = "";
+    	if (!(isLab && courseSection == 0)) {
+    		sectionDesc = "LEC " + String.format("%1$02d", courseSection) + " ";
+    	}
+    	
+    	if (isLab) {
+    		sectionDesc = sectionDesc + "LAB " + labSection;
+    	}
+    	
+    	return faculty + " " + courseNumber + " "
+    			+ sectionDesc;
+    }
+    
 }
