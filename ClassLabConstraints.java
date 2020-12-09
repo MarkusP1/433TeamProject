@@ -55,6 +55,10 @@ public class ClassLabConstraints {
 		return unwanted.contains(sl);
 	}
 	
+	public List<Slot> getUnmodifiableUnwanted() {
+		return Collections.unmodifiableList(unwanted);
+	}
+	
 	public void addUnwanted(Slot sl) {
 		unwanted.add(sl);
 	}

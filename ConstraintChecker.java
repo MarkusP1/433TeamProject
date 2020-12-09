@@ -69,11 +69,11 @@ public class ConstraintChecker {
 			
 			for (ClassLab cl1 : sl1.getUnmodifiableClasses()) {
 				
-				if (!cl1.isLab()) {
+				if (!cl1.isLabOrTut()) {
 					for (Slot sl2 : conflictingSlots) {
 						for (ClassLab cl2 : sl2.getUnmodifiableClasses()) {
 							
-							if (cl1 != cl2 && cl2.isLab()
+							if (cl1 != cl2 && cl2.isLabOrTut()
 									&& cl1.getFaculty().equals(cl2.getFaculty())
 									&& cl1.getCourseNumber().equals(cl2.getCourseNumber())
 									&& cl1.getCourseSection() == cl2.getCourseSection()) {
@@ -166,7 +166,7 @@ public class ConstraintChecker {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
 			for (ClassLab cl1 : sl.getUnmodifiableClasses()) {
 				
-				if (!cl1.isLab() && cl1.getCourseNumber().charAt(0) == '5') {
+				if (!cl1.isLabOrTut() && cl1.getCourseNumber().charAt(0) == '5') {
 					for (ClassLab cl2 : sl.getUnmodifiableClasses()) {
 						
 						if (cl1 != cl2 && cl2.getCourseNumber().charAt(0) == '5') {
@@ -265,7 +265,7 @@ public class ConstraintChecker {
 			for (int i = 0; i < classes.size() - 1; i++) {
 				ClassLab cl1 = classes.get(i);
 				
-				if (!cl1.isLab()) {
+				if (!cl1.isLabOrTut()) {
 					for (ClassLab cl2 : classes.subList(i + 1, classes.size())) {
 						
 						if (cl1.getFaculty().equals(cl2.getFaculty())

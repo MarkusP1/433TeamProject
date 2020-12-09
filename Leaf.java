@@ -9,6 +9,9 @@ public class Leaf{
 	
 	Leaf(Prob pr, int depth){
 		this.pr = pr;
+		/*this.eval = pr.eval;
+		this.fbound = pr.fbound;
+		this.constr = pr.constr;*/
 		this.depth = depth;
 		this.sol = '?';
 	}
@@ -20,7 +23,8 @@ public class Leaf{
 	void setEval(ConstraintChecker c){
 		c.evalStar(pr);
 		c.fbound(pr);
-		eval = pr.getFbound();
+		eval = pr.getEval();
+		fbound = pr.getFbound();
 	}
 	void setConstr(ConstraintChecker c){
 		c.constrStar(pr);

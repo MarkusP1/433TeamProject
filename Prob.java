@@ -6,6 +6,7 @@ public class Prob {
 	boolean constr;
 	int eval;
 	int fbound; 
+
     ArrayList<ClassLab> stuffToBePlaced;
     ArrayList<Slot> courseSlots;
 

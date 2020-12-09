@@ -92,7 +92,8 @@ public class ReaderThing {
 		String faculty; //CPSC, SENG, etc.
 	    String courseNumber;   //the 433 in CPSC 433
 	    int courseSection;  //section 1, 2, etc., set to 0 if its a lab for every lecture section
-	    boolean isLab;  //true if this is a lab
+	    boolean isLabOrTut;  //true if this is a lab or tut
+	    boolean isTut; // true if this is a tut
 		int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
 		
 		faculty = identifier.substring(0, 4);
@@ -104,23 +105,26 @@ public class ReaderThing {
 			if (identifier.length() == 12) {
 				// is a lecture
 				
-				isLab = false;
+				isLabOrTut = false;
+				isTut = false;
 				labSection = 0;
 			} else {
-				// is a lab specific to a certain course section
+				// is a lab or tut specific to a certain course section
 				
-				isLab = true;
+				isLabOrTut = true;
+				isTut = identifier.substring(12, 15).equals("TUT");
 				labSection = Integer.parseInt(identifier.substring(15, 17));
 			}
 		} else {
-			// is a lab open to all course sections
-
-			isLab = true;
+			// is a lab or tut open to all course sections
+			
+			isLabOrTut = true;
+			isTut = identifier.substring(7, 10).equals("TUT");
 			courseSection = 0;
 			labSection = Integer.parseInt(identifier.substring(10, 12));
 		}
 		
-		return new ClassLab(faculty, courseNumber, courseSection, isLab, labSection);
+		return new ClassLab(faculty, courseNumber, courseSection, isLabOrTut, isTut, labSection);
 	}
 
 	private static void trickyConstraint(String constrfaculty, String consrtcourseNumber,
@@ -137,7 +141,7 @@ public class ReaderThing {
 		if (constrcls.size() != 0) {
 			// CPSC 413 is included
 			if (trickycls.size() == 0) {
-				ClassLab trickycl = new ClassLab(trickfaculty, trickycourseNumber, 1, false, 0);
+				ClassLab trickycl = new ClassLab(trickfaculty, trickycourseNumber, 1, false, false, 0);
 				trickycls.add(trickycl);
 				constraintsMap.put(trickycl, new ClassLabConstraints());
 			}
@@ -177,28 +181,12 @@ public class ReaderThing {
 	
 	// will fill stuffToBePlaced and slots, and will initialize constraintsMap
 	public static void read(String args[]){
-		/*String faculty; //CPSC, SENG, etc.
-	    String courseNumber;   //the 433 in CPSC 433
-	    int courseSection;  //section 1, 2, etc., set to 0 if its a lab for every lecture section
-	    boolean isLab;  //true if this is a lab
-		int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
-		ArrayList<DayOfWeek> days;
-	    LocalTime startTime;
-	    LocalTime endTime;
-	    int courseMax;  //coursmax is also labmax for the slot if this is a lab
-		int courseMin;*/ //see above
 		String identifier;
-		/*UniClass classLabToAdd;
-		Slot courseSlotToAdd;*/
-		
+
 		collectInput(args);
 		
 		int i = 0;
 		String workingOn;
-		/*while((!input.isEmpty())&&(i < input.size())){
-			System.out.println(input.get(i));
-			i++;
-		}*/
 		i=0;
 		//this is just file name
 		while (input.get(i).length()>2){   //(!input.isEmpty())&&(input.get(i).length()>2)
@@ -217,30 +205,6 @@ public class ReaderThing {
 				//idea: delete the commas, split by space, each index is now a part of the original string, so i can access Mo separately from 8:00 etc.
 
 				workingOn = workingOn.replaceAll(" ","");
-
-				/*
-				//if the time doesnt start with 0 or 1 or 2, then add a leading zero, so 8:00 becomes 08:00, do this because LocalTime.parse requires hours be two digits.
-				if (!((words[1].charAt(0) == '0')||(words[1].charAt(0) == '1')||(words[1].charAt(0) == '2'))){
-					startTime = LocalTime.parse("0"+words[1]);
-				}
-				else{
-					startTime = LocalTime.parse(words[1]);
-				}
-				
-				if (words[0] == "MO") {
-					days = new ArrayList<DayOfWeek>(Arrays.asList(
-							new DayOfWeek[] {DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY}));
-					
-					endTime = startTime.plusHours(1);
-					
-				} else if (words[0] == "TU") {
-					days = new ArrayList<DayOfWeek>(Arrays.asList(
-							new DayOfWeek[] {DayOfWeek.TUESDAY, DayOfWeek.THURSDAY}));
-					endTime = startTime.plusMinutes(90);
-					
-				}
-				courseMax = Integer.parseInt(words[2]);
-				courseMin = Integer.parseInt(words[3]);*/
 				
 				slots.add(constructSlot(workingOn.split(","), false));
 			}
@@ -256,35 +220,6 @@ public class ReaderThing {
 			if (!(workingOn.contains("Lab"))){
 				workingOn = workingOn.replaceAll(" ","");
 				
-				/*if (!((words[1].charAt(0) == '0')||(words[1].charAt(0) == '1')||(words[1].charAt(0) == '2'))){
-					startTime = LocalTime.parse("0"+words[1]);
-				}
-				else{
-					startTime = LocalTime.parse(words[1]);
-				}
-				
-				if (words[0] == "MO") {
-					days = new ArrayList<DayOfWeek>(Arrays.asList(
-							new DayOfWeek[] {DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY}));
-					
-					endTime = startTime.plusHours(1);
-					
-				} else if (words[0] == "FR") {
-					days = new ArrayList<DayOfWeek>(Arrays.asList(
-							new DayOfWeek[] {DayOfWeek.FRIDAY}));
-					
-					endTime = startTime.plusHours(2);
-					
-				} else if (words[0] == "TU") {
-					days = new ArrayList<DayOfWeek>(Arrays.asList(
-							new DayOfWeek[] {DayOfWeek.TUESDAY, DayOfWeek.THURSDAY}));
-					endTime = startTime.plusHours(1);
-					
-				}
-				
-				courseMax = Integer.parseInt(words[2]);
-				courseMin = Integer.parseInt(words[3]);*/
-				
 				slots.add(constructSlot(workingOn.split(","), true));
 			}
 			i++;
@@ -299,10 +234,7 @@ public class ReaderThing {
 			
 			if (!(workingOn.contains("Course"))){
 				identifier = workingOn.replaceAll(" ", "");
-				/*faculty = words[0];
-				courseNumber = words[1];
-				courseSection = Integer.parseInt(words[3]);
-				classLabToAdd = new UniClass(faculty, courseNumber, courseSection, false, 0);*/
+
 				stuffToBePlaced.add(constructUniClass(identifier));
 			}
 			i++;
@@ -317,18 +249,7 @@ public class ReaderThing {
 			
 			if (!(workingOn.contains("Lab"))){
 				identifier = workingOn.replaceAll(" ", "");
-				/*faculty = words[0];
-				courseNumber = words[1];
-				
-				if (words[2].equals("LEC")){
-					courseSection = Integer.parseInt(words[3]);
-					labSection = Integer.parseInt(words[5]);
-				}
-				else {
-					courseSection = 0;
-					labSection = Integer.parseInt(words[3]);
-				}
-				classLabToAdd = new UniClass(faculty, courseNumber, courseSection, true, labSection);*/
+
 				stuffToBePlaced.add(constructUniClass(identifier));
 			}
 			i++;
@@ -344,6 +265,7 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Not"))){
 				//at this point workonOn is a string similar to: CPSC 567 LEC 01, CPSC 433 LEC 01
+				
 				String[] cls = workingOn.split(",");
 				ClassLab parsedcl1 = constructUniClass(cls[0].replaceAll(" ", ""));
 				ClassLab parsedcl2 = constructUniClass(cls[1].replaceAll(" ", ""));
@@ -366,10 +288,11 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Unw"))){
 				//at this point workingOn is a string similar to: CPSC 433 LEC 01, MO, 8:00
+				
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] words = workingOn.split(",");
 				ClassLab parsedcl = constructUniClass(words[0]);
-				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLab());
+				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLabOrTut());
 				
 				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
 						.findAny().orElse(null);
@@ -391,7 +314,7 @@ public class ReaderThing {
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] words = workingOn.split(",");
 				ClassLab parsedcl = constructUniClass(words[2]);
-				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 0, 2), parsedcl.isLab());
+				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 0, 2), parsedcl.isLabOrTut());
 				int prefRating = Integer.parseInt(words[3]);
 				
 				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
@@ -414,6 +337,7 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Pai"))){
 				//at this point workingOn is a string similar to: SENG 311 LEC 01, CPSC 567 LEC 01
+				
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] cls = workingOn.split(",");
 				ClassLab parsedcl1 = constructUniClass(cls[0]);
@@ -438,10 +362,11 @@ public class ReaderThing {
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Part"))){
 				//at this point workingOn is a string similar to: SENG 311 LEC 01, MO, 8:00
+				
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] words = workingOn.split(",");
 				ClassLab parsedcl = constructUniClass(words[0]);
-				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLab());
+				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLabOrTut());
 				
 				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
 						.findAny().orElse(null);
@@ -462,6 +387,26 @@ public class ReaderThing {
 		c = new ConstraintChecker(constraintsMap, pen_coursemin, pen_labsmin, pen_notpaired, 
 				pen_section, w_minfilled, w_pref, w_pair, w_secdiff, debug);
 		
+		
+		stuffToBePlaced.sort((cl1, cl2) -> {
+					ClassLabConstraints constrcl1 = constraintsMap.get(cl1);
+					ClassLabConstraints constrcl2 = constraintsMap.get(cl2);
+					
+					int rankcl1 = 10000 * (constrcl1.getPartassign() != null ? 1 : 0)  
+							+ 1000 * constrcl1.getUnmodifiableNotCompatible().size()
+							+ 100 * constrcl1.getUnmodifiableUnwanted().size()
+							+ 10 * constrcl1.getUnmodifiablePair().size()
+							+ constrcl1.getPen_notInPreference() * (constrcl1.getPreference() != null ? 1 : 0);
+					
+					int rankcl2 = 10000 * (constrcl2.getPartassign() != null ? 1 : 0)  
+							+ 1000 * constrcl2.getUnmodifiableNotCompatible().size()
+							+ 100 * constrcl2.getUnmodifiableUnwanted().size()
+							+ 10 * constrcl2.getUnmodifiablePair().size()
+							+ constrcl2.getPen_notInPreference() * (constrcl2.getPreference() != null ? 1 : 0);
+					
+					return rankcl2 - rankcl1;
+				});
+
 
 		System.out.println("Done parsing file");
 		if (debug) {
@@ -513,5 +458,9 @@ public class ReaderThing {
 
 	public static ConstraintChecker getConstraintChecker() {
 		return c;
+	}
+	
+	public static boolean getDebug() {
+		return debug;
 	}
 }
