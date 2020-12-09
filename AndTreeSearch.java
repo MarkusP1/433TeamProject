@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /*
 *AND-Tree Search applying Branch-and-Bound 
 *Names:
@@ -36,7 +34,7 @@ public class AndTreeSearch {
 		root.setConstr(c);
 		root.setEval(c);
 		
-		while(!tree.goal()){
+		while(!tree.goal(0)){
 			System.out.println("AA");
 			tree.erw(c);
 		}
