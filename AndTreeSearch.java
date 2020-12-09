@@ -97,7 +97,7 @@ public class AndTreeSearch {
 		
 		int limit = 0;
 		
-		while(!tree.goal(limit)){
+		while(!tree.goal()){
 			if (ReaderThing.getDebug()) {
 				System.out.println(" ");
 				System.out.println(" ");
