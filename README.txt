@@ -14,13 +14,15 @@ Our system takes in ten command line inputs, in the following order:
 it prints out its State along with various indicators to show its actions every time the State
 changes.
 
-Before running this system, place all of the enclosed files in a directory and create 
-two new files in that same directory. One new file should be called 'inputs' and the 
+Before running this system, place all of the enclosed files in a main directory and create 
+two new directories in the main directory. One should be called 'inputs' and the 
 other should be called 'outputs'.
 
-Place input text files in the 'inputs' file to enable our system to read them.
+Place input text files in the 'inputs' directory to enable our system to read them.
 
 Once the system has been run with input file <filename>.txt, its output will appear in a 
 text file called out_<filename>.txt in 'outputs'. You do not have to create or alter an existing 
 file with this name for this to happen.
 
+The system will periodically rewrite this output file as new, better solutions are found during
+the search process.
