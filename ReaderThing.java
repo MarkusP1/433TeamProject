@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class ReaderThing {
 	private static ArrayList<ClassLab> stuffToBePlaced = new ArrayList<ClassLab>();
 	private static ArrayList<Slot> slots = new ArrayList<Slot>();
+	private static HashMap<ClassLab, ClassLabConstraints> constraintsMap;
 	private static ConstraintChecker c;
 	
 	private static ArrayList<String> input; 
@@ -122,6 +123,57 @@ public class ReaderThing {
 		return new ClassLab(faculty, courseNumber, courseSection, isLab, labSection);
 	}
 
+	private static void trickyConstraint(String constrfaculty, String consrtcourseNumber,
+			String trickfaculty, String trickycourseNumber, Slot trickyComparatorSlot) {
+		List<ClassLab> constrcls = stuffToBePlaced.stream()
+				.filter(cl -> cl.getFaculty().equals(constrfaculty) 
+						&& cl.getCourseNumber().equals(consrtcourseNumber))
+				.collect(Collectors.toList());
+		List<ClassLab> trickycls = stuffToBePlaced.stream()
+				.filter(cl -> cl.getFaculty().equals(trickfaculty) 
+						&& cl.getCourseNumber().equals(trickycourseNumber))
+				.collect(Collectors.toList());
+		
+		if (constrcls.size() != 0) {
+			// CPSC 413 is included
+			if (trickycls.size() == 0) {
+				ClassLab trickycl = new ClassLab(trickfaculty, trickycourseNumber, 1, false, 0);
+				trickycls.add(trickycl);
+				constraintsMap.put(trickycl, new ClassLabConstraints());
+			}
+			
+			Slot trickysl = slots.stream().filter(sl -> sl.weakEquals(trickyComparatorSlot))
+					.findAny().orElse(null);
+			
+			if (trickysl == null) {
+				trickysl = trickyComparatorSlot;
+				slots.add(trickysl);
+				
+			}
+			
+			for (ClassLab tricky : trickycls) {
+				stuffToBePlaced.remove(tricky);
+				trickysl.addClassLab(tricky);
+			
+				// fill not compatible contraint
+				for (ClassLab constrcl : constrcls) {
+					ClassLabConstraints toCopy = constraintsMap.get(constrcl);
+					ClassLabConstraints toFill = constraintsMap.get(tricky);
+					
+					for (ClassLab cl : toCopy.getUnmodifiableNotCompatible()) {
+						if (!toFill.notCompatibleContains(cl)) {
+							toFill.addNotCompatible(cl);
+							constraintsMap.get(cl).addNotCompatible(tricky);
+						}
+					}
+					if (!toFill.notCompatibleContains(constrcl)) {
+						toFill.addNotCompatible(constrcl);
+						constraintsMap.get(constrcl).addNotCompatible(tricky);
+					}
+				}
+			}
+		}
+	}
 	
 	// will fill stuffToBePlaced and slots, and will initialize constraintsMap
 	public static void read(String args[]){
@@ -284,7 +336,7 @@ public class ReaderThing {
 			i++;
 		}
 
-		HashMap<ClassLab, ClassLabConstraints> constraintsMap = (HashMap<ClassLab, ClassLabConstraints>) stuffToBePlaced.stream().collect(Collectors.toMap(
+		constraintsMap = (HashMap<ClassLab, ClassLabConstraints>) stuffToBePlaced.stream().collect(Collectors.toMap(
 				cl -> cl, cl -> new ClassLabConstraints()));
 
 		i++;
@@ -383,7 +435,7 @@ public class ReaderThing {
 
 		i++;
 		//this is partial assignments
-		while (i < input.size()){
+		while (i < input.size() && !input.get(i).equals("")){
 			workingOn = (input.get(i));
 			System.out.println(workingOn);
 			if (!(workingOn.contains("Part"))){
@@ -405,77 +457,9 @@ public class ReaderThing {
 		
 		
 		// deal with CPSC 313/413 and CPSC 813/913
-		
-		List<ClassLab> cl313s = stuffToBePlaced.stream()
-				.filter(cl -> cl.getFaculty().equals("CPSC") 
-						&& cl.getCourseNumber().equals("313"))
-				.collect(Collectors.toList());
-		List<ClassLab> cl413s = stuffToBePlaced.stream()
-				.filter(cl -> cl.getFaculty().equals("CPSC") 
-						&& cl.getCourseNumber().equals("413"))
-				.collect(Collectors.toList());
-		List<ClassLab> cl813s = stuffToBePlaced.stream()
-				.filter(cl -> cl.getFaculty().equals("CPSC") 
-						&& cl.getCourseNumber().equals("813"))
-				.collect(Collectors.toList());
-		List<ClassLab> cl913s = stuffToBePlaced.stream()
-				.filter(cl -> cl.getFaculty().equals("CPSC") 
-						&& cl.getCourseNumber().equals("913"))
-				.collect(Collectors.toList());
-		if (cl313s.size() != 0) {
-			// CPSC 313 is included
-			if (cl813s.size() != 0) {
-				for (ClassLab cl813 : cl813s) {
-					slots.get(slots.indexOf(constructSlot(new String[]{"TU", "18:00"}, true)))
-							.addClassLab(cl813);
-					stuffToBePlaced.remove(cl813);
 
-					// fill not compatible contraint
-					for (ClassLab cl313 : cl313s) {
-						ClassLabConstraints toCopy = constraintsMap.get(cl313);
-						ClassLabConstraints toFill = constraintsMap.get(cl813);
-						
-						for (ClassLab cl : toCopy.getUnmodifiableNotCompatible()) {
-							if (!toFill.notCompatibleContains(cl)) {
-								toFill.addNotCompatible(cl);
-								constraintsMap.get(cl).addNotCompatible(cl813);
-							}
-						}
-						if (!toFill.notCompatibleContains(cl313)) {
-							toFill.addNotCompatible(cl313);
-							constraintsMap.get(cl313).addNotCompatible(cl813);
-						}
-					}
-				}
-			}
-		}
-		if (cl413s.size() != 0) {
-			// CPSC 313 is included
-			if (cl913s.size() != 0) {
-				for (ClassLab cl913 : cl913s) {
-					slots.get(slots.indexOf(constructSlot(new String[]{"TU", "18:00"}, true)))
-							.addClassLab(cl913);
-					stuffToBePlaced.remove(cl913);
-				
-					// fill not compatible contraint
-					for (ClassLab cl413 : cl413s) {
-						ClassLabConstraints toCopy = constraintsMap.get(cl413);
-						ClassLabConstraints toFill = constraintsMap.get(cl913);
-						
-						for (ClassLab cl : toCopy.getUnmodifiableNotCompatible()) {
-							if (!toFill.notCompatibleContains(cl)) {
-								toFill.addNotCompatible(cl);
-								constraintsMap.get(cl).addNotCompatible(cl913);
-							}
-						}
-						if (!toFill.notCompatibleContains(cl413)) {
-							toFill.addNotCompatible(cl413);
-							constraintsMap.get(cl413).addNotCompatible(cl913);
-						}
-					}
-				}
-			}
-		}
+		trickyConstraint("CPSC", "313", "CPSC", "813", constructSlot(new String[] {"TU", "18:00", "1", "0"}, true));
+		trickyConstraint("CPSC", "413", "CPSC", "913", constructSlot(new String[] {"TU", "18:00", "1", "0"}, true));
 		
 		c = new ConstraintChecker(constraintsMap, pen_coursemin, pen_labsmin, pen_notpaired, 
 				pen_section, w_minfilled, w_pref, w_pair, w_secdiff, debug);

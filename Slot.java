@@ -98,7 +98,7 @@ public class Slot {
     	return slotType + " slot on "
     			+ days.toString() + " from "
     			+ startTime.toString() + " to "
-    			+ startTime.toString() + " of "
+    			+ endTime.toString() + " of "
     			+ classes.toString();
     }
 }

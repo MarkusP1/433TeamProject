@@ -1,6 +1,7 @@
 
 
 import java.lang.Math;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +123,7 @@ public class ConstraintChecker {
 				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.getPartassign() != null
-						&& constraints.getPartassign().equals(sl)) {
+						&& !constraints.getPartassign().equals(sl)) {
 					return false;
 				}
 			}
@@ -148,10 +149,11 @@ public class ConstraintChecker {
 	private boolean constrEvening(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
 			
-			if (sl.getStartTime().compareTo(LocalTime.of(18, 0)) < 0) {
+			if (!sl.isLab()) {
 				for (ClassLab cl : sl.getUnmodifiableClasses()) {
 					
-					if (!cl.isLab() && cl.getCourseSection() >= 9) {
+					if ((sl.getStartTime().compareTo(LocalTime.of(18, 0)) >= 0 && cl.getCourseSection() < 90)
+							|| (sl.getStartTime().isBefore(LocalTime.of(18, 0)) && cl.getCourseSection() >= 90)) {
 						return false;
 					}
 				}
@@ -173,6 +175,18 @@ public class ConstraintChecker {
 						}
 					}
 				}
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean constrNoTu11Lec(Prob pr) {
+		for (Slot sl : pr.getUnmodifiableSlots()) {
+			if (!sl.isLab() && sl.getDays().contains(DayOfWeek.TUESDAY)
+					&& sl.getStartTime().equals(LocalTime.of(11, 0))
+					&& !sl.getUnmodifiableClasses().isEmpty()) {
+				return false;
 			}
 		}
 		
@@ -271,7 +285,7 @@ public class ConstraintChecker {
 	public void constrStar(Prob pr) {
 		boolean hardConstrs = constrMax(pr) && constrSectionLabs(pr) 
 				&& constrNotCompatible(pr) && constrPartAssign(pr) && constrUnwanted(pr)
-				&& constrEvening(pr) && constr500Level(pr);
+				&& constrEvening(pr) && constr500Level(pr) && constrNoTu11Lec(pr);
 		
 		pr.setConstr(hardConstrs);
 	}
