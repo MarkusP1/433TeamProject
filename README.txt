@@ -1,3 +1,6 @@
+CPSC 433 TUT 3 Group:
+Sammy El-rafih, Adrian Tadic, Markus Pistner, Mitchel Belanger, Eric Gantz, Sean Park
+
 Our system takes in ten command line inputs, in the following order:
 1.) The input file
 2.) int pen_coursemin,
