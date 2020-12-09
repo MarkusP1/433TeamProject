@@ -1,7 +1,7 @@
 CPSC 433 TUT 3 Group:
 Sammy El-rafih, Adrian Tadic, Markus Pistner, Mitchel Belanger, Eric Gantz, Sean Park
 
-Our system takes in ten command line inputs, in the following order:
+Compile and run java AndTreeSearch with the following ten command line inputs:
 1.) The input file
 2.) int pen_coursemin,
 3.) int pen_labsmin
