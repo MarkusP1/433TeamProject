@@ -1,19 +1,26 @@
 
 
-
+/**
+ * Represents a course lecture or lab (or tut), differentiated by booleans held in an instance.
+ * Is immutable.
+ *
+ */
 public class ClassLab {
 	
     private String faculty; //CPSC, SENG, etc.
     private String courseNumber;   //the 433 in CPSC 433
     private int courseSection;  //section 01, 02, etc., set to null if its a lab for every lecture section
-    private boolean isLab;  //true if this is a lab
+    private boolean isLabOrTut;  //true if this is a lab
+    private boolean isTut;
     private int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
     
-	public ClassLab(String faculty, String courseNumber, int courseSection, boolean isLab, int labSection) {
+    // full constructor
+	public ClassLab(String faculty, String courseNumber, int courseSection, boolean isLabOrTut, boolean isTut, int labSection) {
 		this.faculty = new String(faculty);
 		this.courseNumber = new String(courseNumber);
 		this.courseSection = courseSection;
-		this.isLab = isLab;
+		this.isLabOrTut = isLabOrTut;
+		this.isTut = isTut;
 		this.labSection = labSection;
 	}
 
@@ -29,32 +36,43 @@ public class ClassLab {
 		return courseSection;
 	}
 
-	public boolean isLab() {
-		return isLab;
+	public boolean isLabOrTut() {
+		return isLabOrTut;
+	}
+	
+	public boolean isTut() {
+		return isTut;
 	}
 
 	public int getLabSection() {
 		return labSection;
 	}
 
-	// @Overrides
-	public boolean equals(ClassLab other) {
-		return this.faculty.equals(other.faculty)
-				&& this.courseNumber.equals(other.courseNumber)
-				&& this.courseSection == other.courseSection
-				&& (this.isLab == other.isLab)
-				&& this.labSection == other.labSection;
+    // @Overrides Object.equals(Object obj)
+	public boolean equals(Object obj) {
+		if (obj.getClass().equals(ClassLab.class)) {
+			ClassLab cl = (ClassLab) obj;
+			return this.faculty.equals(cl.faculty)
+					&& this.courseNumber.equals(cl.courseNumber)
+					&& this.courseSection == cl.courseSection
+					&& (this.isLabOrTut == cl.isLabOrTut)
+					&& this.labSection == cl.labSection;
+		} else {
+			return super.equals(obj);
+		}
 	}
     
     // @Overrides Object.toString()
     public String toString() {
     	String sectionDesc = "";
-    	if (!(isLab && courseSection == 0)) {
-    		sectionDesc = "LEC " + String.format("%1$02d", courseSection) + " ";
+    	if (!(isLabOrTut && courseSection == 0)) {
+    		sectionDesc = "LEC " + String.format("%1$02d", courseSection);
     	}
     	
-    	if (isLab) {
-    		sectionDesc = sectionDesc + "LAB " + labSection;
+    	if (isLabOrTut) {
+    		String labOrTutID = isTut ? "TUT " : "LAB ";
+    		
+    		sectionDesc = sectionDesc + " " + labOrTutID + String.format("%1$02d", labSection);
     	}
     	
     	return faculty + " " + courseNumber + " "

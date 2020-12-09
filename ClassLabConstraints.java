@@ -2,6 +2,12 @@
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
+/**
+ * Holds all necessary constraints information relating to classes which can't be derived.
+ *
+ */
 public class ClassLabConstraints {
 	
 	private ArrayList<ClassLab> notCompatible;
@@ -12,7 +18,10 @@ public class ClassLabConstraints {
 	private ArrayList<ClassLab> pair;
 	
 	public ClassLabConstraints() {
-		
+		this.notCompatible = new ArrayList<ClassLab>();
+		this.unwanted = new ArrayList<Slot>();
+		this.pen_notInPreference = 0;
+		this.pair = new ArrayList<ClassLab>();
 	}
 	
 	public ClassLabConstraints(ArrayList<ClassLab> notCompatible, Slot partassign,
@@ -31,6 +40,10 @@ public class ClassLabConstraints {
 		return notCompatible.contains(cl);
 	}
 	
+	public List<ClassLab> getUnmodifiableNotCompatible() {
+		return Collections.unmodifiableList(notCompatible);
+	}
+	
 	public void addNotCompatible(ClassLab cl) {
 		notCompatible.add(cl);
 	}
@@ -45,6 +58,10 @@ public class ClassLabConstraints {
 
 	public boolean unwantedContains(Slot sl) {
 		return unwanted.contains(sl);
+	}
+	
+	public List<Slot> getUnmodifiableUnwanted() {
+		return Collections.unmodifiableList(unwanted);
 	}
 	
 	public void addUnwanted(Slot sl) {
@@ -67,8 +84,8 @@ public class ClassLabConstraints {
 		this.pen_notInPreference = pen_notInPreference;
 	}
 	
-	public ArrayList<ClassLab> getUnmodifiablePair() {
-		return (ArrayList<ClassLab>) Collections.unmodifiableList(pair);
+	public List<ClassLab> getUnmodifiablePair() {
+		return Collections.unmodifiableList(pair);
 	}
 	
 	public void addPair(ClassLab cl) {
