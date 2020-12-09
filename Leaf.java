@@ -4,6 +4,7 @@ public class Leaf{
 	int depth;
 	int eval;//despite the name tracks eval*
 	boolean constr;
+	int fbound; 
 
 	
 	Leaf(Prob pr, int depth){
@@ -18,10 +19,16 @@ public class Leaf{
 	
 	void setEval(ConstraintChecker c){
 		c.evalStar(pr);
-		eval = pr.getEval();
+		c.fbound(pr);
+		eval = pr.getFbound();
 	}
 	void setConstr(ConstraintChecker c){
 		c.constrStar(pr);
 		constr = pr.getConstr();
+	}
+	
+	public String toString() {
+		return "Leaf: " + pr.toString() + "\n"
+				+ sol + " " + depth + " " + eval + " " + constr;
 	}
 }

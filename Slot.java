@@ -2,6 +2,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Slot {
 	
@@ -22,6 +23,16 @@ public class Slot {
 		this.max = max;
 		this.min = min;
 		this.isLab = isLab;
+	}
+	
+	public Slot(Slot copy) {
+		this.days = new ArrayList<DayOfWeek>(copy.days);
+		this.startTime = copy.startTime;
+		this.endTime = copy.endTime;
+		this.max = copy.max;
+		this.min = copy.min;
+		this.isLab = copy.isLab;
+		this.classes = new ArrayList<ClassLab>(copy.classes);
 	}
 	
 	public ArrayList<DayOfWeek> getDays() {
@@ -45,15 +56,18 @@ public class Slot {
 	public void addClassLab(ClassLab cl) {
 		classes.add(cl);
 	}
-	public ArrayList<ClassLab> getUnmodifiableClasses() {
-		return (ArrayList<ClassLab>) Collections.unmodifiableList(classes);
+	public List<ClassLab> getUnmodifiableClasses() {
+		return Collections.unmodifiableList(classes);
 	}
 
     public boolean conflicts(Slot sl) {
     	boolean daysConflict = this.days.stream()
     			.anyMatch(d -> sl.days.contains(d));
-    	boolean timesConflict = this.startTime.isAfter(sl.endTime) 
-    			|| this.endTime.isBefore(sl.startTime);
+    	boolean timesConflict = ((this.startTime.isAfter(sl.startTime) || this.startTime.equals(sl.startTime)) 
+    					&& this.startTime.isBefore(sl.endTime))
+    			|| (this.endTime.isAfter(sl.startTime) 
+    					&& (this.endTime.isBefore(sl.endTime) || this.endTime.equals(sl.endTime)))
+    			|| (sl.startTime.isAfter(this.startTime) && sl.endTime.isBefore(this.endTime));
     	
     	return daysConflict && timesConflict;
     }
@@ -65,14 +79,26 @@ public class Slot {
     			&& this.endTime.equals(sl.endTime)
     			&& this.days.equals(sl.days);
     }
+
+    // @Overrides Object.toString()
+    public boolean equals(Object obj) {
+		if (obj.getClass().equals(Slot.class)) {
+			Slot sl = (Slot) obj;
+			return weakEquals(sl)
+					&& this.max == sl.max && this.min == sl.min;
+		} else {
+			return super.equals(obj);
+		}
+    }
     
     // @Overrides Object.toString()
     public String toString() {
     	String slotType = isLab ? "Lab" : "Lecture";
     	
-    	return slotType + "slot on "
+    	return slotType + " slot on "
     			+ days.toString() + " from "
     			+ startTime.toString() + " to "
-    			+ startTime.toString();
+    			+ endTime.toString() + " of "
+    			+ classes.toString();
     }
 }

@@ -1,0 +1,4 @@
+Eval-value: 2
+CPSC 101 LEC 01             :MO, 08:00
+CPSC 102 LEC 01             :MO, 10:00
+CPSC 103 LEC 01             :MO, 09:00

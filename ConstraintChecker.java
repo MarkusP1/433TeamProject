@@ -1,9 +1,10 @@
 
-
 import java.lang.Math;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ConstraintChecker {
 	
@@ -28,11 +29,17 @@ public class ConstraintChecker {
 	boolean debug;
 	
 	public ConstraintChecker(HashMap<ClassLab, ClassLabConstraints> constraintsMap,
-			int pen_coursemin, int pen_labsmin, int pen_notpaired, boolean debug) {
+			int pen_coursemin, int pen_labsmin, int pen_notpaired, int pen_section,
+			float w_minfilled, float w_pref, float w_pair, float w_secdiff, boolean debug) {
 		this.constraintsMap = new HashMap<ClassLab, ClassLabConstraints>(constraintsMap);
 		this.pen_coursemin = pen_coursemin;
 		this.pen_labsmin = pen_labsmin;
 		this.pen_notpaired = pen_notpaired;
+		this.pen_section = pen_section;
+		this.w_minfilled = w_minfilled;
+		this.w_pref = w_pref;
+		this.w_pair = w_pair;
+		this.w_secdiff = w_secdiff;
 		this.debug = debug;
 	}
 	
@@ -115,7 +122,7 @@ public class ConstraintChecker {
 				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.getPartassign() != null
-						&& constraints.getPartassign() != sl) {
+						&& !constraints.getPartassign().equals(sl)) {
 					return false;
 				}
 			}
@@ -141,10 +148,11 @@ public class ConstraintChecker {
 	private boolean constrEvening(Prob pr) {
 		for (Slot sl : pr.getUnmodifiableSlots()) {
 			
-			if (sl.getStartTime().compareTo(LocalTime.of(18, 0)) < 0) {
+			if (!sl.isLab()) {
 				for (ClassLab cl : sl.getUnmodifiableClasses()) {
 					
-					if (!cl.isLab() && cl.getCourseSection() >= 9) {
+					if ((sl.getStartTime().compareTo(LocalTime.of(18, 0)) >= 0 && cl.getCourseSection() < 90)
+							|| (sl.getStartTime().isBefore(LocalTime.of(18, 0)) && cl.getCourseSection() >= 90)) {
 						return false;
 					}
 				}
@@ -166,6 +174,18 @@ public class ConstraintChecker {
 						}
 					}
 				}
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean constrNoTu11Lec(Prob pr) {
+		for (Slot sl : pr.getUnmodifiableSlots()) {
+			if (!sl.isLab() && sl.getDays().contains(DayOfWeek.TUESDAY)
+					&& sl.getStartTime().equals(LocalTime.of(11, 0))
+					&& !sl.getUnmodifiableClasses().isEmpty()) {
+				return false;
 			}
 		}
 		
@@ -196,7 +216,7 @@ public class ConstraintChecker {
 				ClassLabConstraints constraints = constraintsMap.get(cl);
 				Slot preference = constraints.getPreference();
 				
-				if (preference != null && preference != sl) {
+				if (preference != null && !preference.equals(sl)) {
 					eval += constraints.getPen_notInPreference();
 				}
 			}
@@ -220,7 +240,7 @@ public class ConstraintChecker {
 			
 			for (ClassLab cl1 : sl1.getUnmodifiableClasses()) {
 				ClassLabConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<ClassLab> pair = constraints.getUnmodifiablePair();
+				List<ClassLab> pair = constraints.getUnmodifiablePair();
 				
 				for (Slot sl2 : conflictingSlots) {
 					for (ClassLab cl2 : pair) {
@@ -233,22 +253,6 @@ public class ConstraintChecker {
 			}
 		}
 		
-		/*for (Slot sl : pr.getUnmodifiableSlots()) {
-			ArrayList<UniClass> classes = sl.getUnmodifiableUniClasses();
-			
-			for (UniClass cl1 : classes) {
-				UniClassConstraints constraints = constraintsMap.get(cl1);
-				ArrayList<UniClass> pair = constraints.getUnmodifiablePair();
-				
-				for (UniClass cl2 : pair) {
-					
-					if (!classes.contains(cl2)) {
-						eval += pen_notpaired;
-					}
-				}
-			}
-		}*/
-		
 		return eval;
 	}
 	
@@ -256,7 +260,7 @@ public class ConstraintChecker {
 		int eval = 0;
 		
 		for (Slot sl: pr.getUnmodifiableSlots()) {
-			ArrayList<ClassLab> classes = sl.getUnmodifiableClasses();
+			List<ClassLab> classes = sl.getUnmodifiableClasses();
 			
 			for (int i = 0; i < classes.size() - 1; i++) {
 				ClassLab cl1 = classes.get(i);
@@ -280,7 +284,7 @@ public class ConstraintChecker {
 	public void constrStar(Prob pr) {
 		boolean hardConstrs = constrMax(pr) && constrSectionLabs(pr) 
 				&& constrNotCompatible(pr) && constrPartAssign(pr) && constrUnwanted(pr)
-				&& constrEvening(pr) && constr500Level(pr);
+				&& constrEvening(pr) && constr500Level(pr) && constrNoTu11Lec(pr);
 		
 		pr.setConstr(hardConstrs);
 	}
@@ -295,4 +299,14 @@ public class ConstraintChecker {
 		
 		pr.setEval(eval);
 	}
+	
+	public void fbound(Prob pr) {
+		int eval = 0;
+		eval += evalPref(pr) * w_pref;
+		eval += evalPair(pr) * w_pair;
+		eval += evalSecdiff(pr) * w_secdiff;
+		
+		pr.setFbound(eval);
+	}
+	
 }
