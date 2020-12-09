@@ -31,6 +31,19 @@ public class ReaderThing {
 	
 	private static boolean debug;
 
+	
+	/**
+	 * Constructs a new Slot object from the given identifying string and whether it's a lab or not.
+	 * @param identifier
+	 * 	A string array with meaningful indices:
+	 * 		0 : first of the days
+	 * 		1 : start time
+	 * 		2 : coursemax/labmax
+	 * 		3 : coursemin/labmin
+	 * @param isLab
+	 * 	Indicates whether the slot is specific to labs or not.
+	 * @return Constructed Slot object.
+	 */
 	private static Slot constructSlot(String[] identifier, boolean isLab) {
 		ArrayList<DayOfWeek> days;
 	    LocalTime startTime;
@@ -88,7 +101,15 @@ public class ReaderThing {
 		return new Slot(days, startTime, endTime, courseMax, courseMin, isLab);
 	}
 	
-	private static ClassLab constructUniClass(String identifier) {
+	
+	/**
+	 * Constructs a new ClassLab object from the given identifier string.
+	 * @param identifier
+	 * 	A string in the format of:
+	 * 		faculty + courseNumber + (LEC + courseSection) + (LAB / TUT + labSection)
+	 * @return Constructed ClassLab object.
+	 */
+	private static ClassLab constructClassLab(String identifier) {
 		String faculty; //CPSC, SENG, etc.
 	    String courseNumber;   //the 433 in CPSC 433
 	    int courseSection;  //section 1, 2, etc., set to 0 if its a lab for every lecture section
@@ -127,21 +148,78 @@ public class ReaderThing {
 		return new ClassLab(faculty, courseNumber, courseSection, isLabOrTut, isTut, labSection);
 	}
 
-	private static void trickyConstraint(String constrfaculty, String consrtcourseNumber,
-			String trickfaculty, String trickycourseNumber, Slot trickyComparatorSlot) {
+	
+	/**
+	 * Parses command line arguments, reading lines of the input file and initializing
+	 * penalty and weight values.
+	 * 
+	 * @param args
+	 * 	Command line arguments to parse.
+	 */
+	public static void collectInput(String[] args){
+		ArrayList<String> totalInput = new ArrayList<String>();		
+		File inputFile = new File("inputs/" + args[0]);//args[0] in brackets
+		try{ 
+		BufferedReader reader = new BufferedReader(new FileReader(inputFile/*"inputs/gehtnicht5.txt"*/)); //should look something like "inputs/" + inputFile
+		String line = ""; 
+		while((line = reader.readLine()) != null){
+			totalInput.add(line);
+		}
+		reader.close();
+		} catch(FileNotFoundException er){
+			System.err.println("File not found.");
+		} catch(IOException er){
+			System.err.println("Unable to read file.");
+		}
+		
+		input = totalInput;
+
+		pen_coursemin = Integer.parseInt(args[1]);
+		pen_labsmin = Integer.parseInt(args[2]);
+		pen_notpaired = Integer.parseInt(args[3]);
+		pen_section = Integer.parseInt(args[4]);
+		
+		w_minfilled = Float.parseFloat(args[5]);
+		w_pref = Float.parseFloat(args[6]);
+		w_pair = Float.parseFloat(args[7]);
+		w_secdiff = Float.parseFloat(args[8]);
+		
+		debug = Boolean.parseBoolean(args[9]);
+	}
+
+	
+	/**
+	 * Modifies the the list of classes and the constraints map to implement the tricky
+	 * constraints involving 313/413 and 813/913. Generalized to any constraining class
+	 * and tricky class which is placed in a tricky slot.
+	 * 
+	 * When a constraining class is present, if a tricky class does not exist then it is
+	 * created. Then if a tricky slot does not exist then it is created with max of 1.
+	 * Then the tricky class is assigned to the tricky slot, and constraints are added to
+	 * the tricky class based on the constraining class.
+	 * 
+	 * @param constrfaculty Constraining class faculty.
+	 * @param constrcourseNumber Constraining class course number.
+	 * @param trickyfaculty Tricky class faculty.
+	 * @param trickycourseNumber Tricky class course number.
+	 * @param trickyComparatorSlot Tricky slot in which the tricky class will be assigned.
+	 */
+	private static void trickyConstraint(String constrfaculty, String constrcourseNumber,
+			String trickyfaculty, String trickycourseNumber, Slot trickyComparatorSlot) {
 		List<ClassLab> constrcls = stuffToBePlaced.stream()
 				.filter(cl -> cl.getFaculty().equals(constrfaculty) 
-						&& cl.getCourseNumber().equals(consrtcourseNumber))
+						&& cl.getCourseNumber().equals(constrcourseNumber))
 				.collect(Collectors.toList());
 		List<ClassLab> trickycls = stuffToBePlaced.stream()
-				.filter(cl -> cl.getFaculty().equals(trickfaculty) 
+				.filter(cl -> cl.getFaculty().equals(trickyfaculty) 
 						&& cl.getCourseNumber().equals(trickycourseNumber))
 				.collect(Collectors.toList());
 		
 		if (constrcls.size() != 0) {
-			// CPSC 413 is included
+			// CPSC 313/413 is included
 			if (trickycls.size() == 0) {
-				ClassLab trickycl = new ClassLab(trickfaculty, trickycourseNumber, 1, false, false, 0);
+				// CPSC 813/913 is not included
+				ClassLab trickycl = new ClassLab(trickyfaculty, trickycourseNumber, 1, false, false, 0);
 				trickycls.add(trickycl);
 				constraintsMap.put(trickycl, new ClassLabConstraints());
 			}
@@ -150,6 +228,7 @@ public class ReaderThing {
 					.findAny().orElse(null);
 			
 			if (trickysl == null) {
+				// slot for CPSC 813/913 doesn't exist
 				trickysl = trickyComparatorSlot;
 				slots.add(trickysl);
 				
@@ -159,7 +238,7 @@ public class ReaderThing {
 				stuffToBePlaced.remove(tricky);
 				trickysl.addClassLab(tricky);
 			
-				// fill not compatible contraint
+				// fill not compatible contraints
 				for (ClassLab constrcl : constrcls) {
 					ClassLabConstraints toCopy = constraintsMap.get(constrcl);
 					ClassLabConstraints toFill = constraintsMap.get(tricky);
@@ -235,7 +314,7 @@ public class ReaderThing {
 			if (!(workingOn.contains("Course"))){
 				identifier = workingOn.replaceAll(" ", "");
 
-				stuffToBePlaced.add(constructUniClass(identifier));
+				stuffToBePlaced.add(constructClassLab(identifier));
 			}
 			i++;
 		}
@@ -250,7 +329,7 @@ public class ReaderThing {
 			if (!(workingOn.contains("Lab"))){
 				identifier = workingOn.replaceAll(" ", "");
 
-				stuffToBePlaced.add(constructUniClass(identifier));
+				stuffToBePlaced.add(constructClassLab(identifier));
 			}
 			i++;
 		}
@@ -267,8 +346,8 @@ public class ReaderThing {
 				//at this point workonOn is a string similar to: CPSC 567 LEC 01, CPSC 433 LEC 01
 				
 				String[] cls = workingOn.split(",");
-				ClassLab parsedcl1 = constructUniClass(cls[0].replaceAll(" ", ""));
-				ClassLab parsedcl2 = constructUniClass(cls[1].replaceAll(" ", ""));
+				ClassLab parsedcl1 = constructClassLab(cls[0].replaceAll(" ", ""));
+				ClassLab parsedcl2 = constructClassLab(cls[1].replaceAll(" ", ""));
 				
 				ClassLab storedcl1 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl1))
 						.findAny().orElse(null);
@@ -291,7 +370,7 @@ public class ReaderThing {
 				
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] words = workingOn.split(",");
-				ClassLab parsedcl = constructUniClass(words[0]);
+				ClassLab parsedcl = constructClassLab(words[0]);
 				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLabOrTut());
 				
 				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
@@ -313,7 +392,7 @@ public class ReaderThing {
 			if (!(workingOn.contains("Pre"))){
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] words = workingOn.split(",");
-				ClassLab parsedcl = constructUniClass(words[2]);
+				ClassLab parsedcl = constructClassLab(words[2]);
 				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 0, 2), parsedcl.isLabOrTut());
 				int prefRating = Integer.parseInt(words[3]);
 				
@@ -340,8 +419,8 @@ public class ReaderThing {
 				
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] cls = workingOn.split(",");
-				ClassLab parsedcl1 = constructUniClass(cls[0]);
-				ClassLab parsedcl2 = constructUniClass(cls[1]);
+				ClassLab parsedcl1 = constructClassLab(cls[0]);
+				ClassLab parsedcl2 = constructClassLab(cls[1]);
 				
 				ClassLab storedcl1 = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl1))
 						.findAny().orElse(null);
@@ -365,7 +444,7 @@ public class ReaderThing {
 				
 				workingOn = workingOn.replaceAll(" ", "");
 				String[] words = workingOn.split(",");
-				ClassLab parsedcl = constructUniClass(words[0]);
+				ClassLab parsedcl = constructClassLab(words[0]);
 				Slot parsedsl = constructSlot(Arrays.copyOfRange(words, 1, 3), parsedcl.isLabOrTut());
 				
 				ClassLab storedcl = stuffToBePlaced.stream().filter(cl -> cl.equals(parsedcl))
@@ -380,7 +459,6 @@ public class ReaderThing {
 		
 		
 		// deal with CPSC 313/413 and CPSC 813/913
-
 		trickyConstraint("CPSC", "313", "CPSC", "813", constructSlot(new String[] {"TU", "18:00", "1", "0"}, true));
 		trickyConstraint("CPSC", "413", "CPSC", "913", constructSlot(new String[] {"TU", "18:00", "1", "0"}, true));
 		
@@ -388,6 +466,7 @@ public class ReaderThing {
 				pen_section, w_minfilled, w_pref, w_pair, w_secdiff, debug);
 		
 		
+		// rank the classes by 'how constrained' they are; measurement is a rudimentary method
 		stuffToBePlaced.sort((cl1, cl2) -> {
 					ClassLabConstraints constrcl1 = constraintsMap.get(cl1);
 					ClassLabConstraints constrcl2 = constraintsMap.get(cl2);
@@ -415,37 +494,6 @@ public class ReaderThing {
 			System.out.println(constraintsMap);
 			
 		}
-	}
-
-	public static void collectInput(String[] args){
-		ArrayList<String> totalInput = new ArrayList<String>();		
-		File inputFile = new File("inputs/" + args[0]);//args[0] in brackets
-		try{ 
-		BufferedReader reader = new BufferedReader(new FileReader(inputFile/*"inputs/gehtnicht5.txt"*/)); //should look something like "inputs/" + inputFile
-		String line = ""; 
-		while((line = reader.readLine()) != null){
-			totalInput.add(line);
-		}
-		reader.close();
-		} catch(FileNotFoundException er){
-			System.err.println("File not found.");
-		} catch(IOException er){
-			System.err.println("Unable to read file.");
-		}
-		
-		input = totalInput;
-
-		pen_coursemin = Integer.parseInt(args[1]);
-		pen_labsmin = Integer.parseInt(args[2]);
-		pen_notpaired = Integer.parseInt(args[3]);
-		pen_section = Integer.parseInt(args[4]);
-		
-		w_minfilled = Float.parseFloat(args[5]);
-		w_pref = Float.parseFloat(args[6]);
-		w_pair = Float.parseFloat(args[7]);
-		w_secdiff = Float.parseFloat(args[8]);
-		
-		debug = Boolean.parseBoolean(args[9]);
 	}
 
 	public static ArrayList<ClassLab> getCourses() {
