@@ -17,24 +17,30 @@ public class State{
 	
 	boolean allSolved = false;//If there are any unsolved nodes, this is false, true otherwise.
 	
+	private boolean debug;
 	
-	State(LinkedList<Leaf> leaves /*,ConstraintChecker c*/){//Constructor
+	
+	State(LinkedList<Leaf> leaves, boolean debug /*,ConstraintChecker c*/){//Constructor
 		this.leaves = leaves;
 		this.bestsol = -1;
 		//this.c = c;
+		this.debug = debug;
 	}
 
 
 	void erw(ConstraintChecker c){
-		System.out.println(leaves.toString());
+		if (debug)
+			System.out.println(leaves.toString());
 		if(allSolved){
-		System.out.println("stillborn");
+			System.out.println("stillborn");
 		}
 		
 		fleaf();//Changes 'selected' and its index to follow fleaf as outlined in the paper
-		System.out.println("SELECTED NODE");
-		System.out.println(selected.toString());
-		System.out.println("SELECTED NODE");
+		if (debug) {
+			System.out.println("SELECTED NODE");
+			System.out.println(selected.toString());
+			System.out.println("SELECTED NODE");
+		}
 		
 		solved(selectedIndex);//Checks if the given leaf is solved, does operations on it contingent on that. The name does not indicate the true purpose of this function!
 		
@@ -70,11 +76,13 @@ public class State{
 	
 		if(leaves.get(i).pr.stuffToBePlaced.size() == 0 && leaves.get(i).constr){//If the node is solved and the solution fits the constraints...
 			leaves.get(i).setSol('y');
-			System.out.println("NODE SOLVED");
+			if (debug)
+				System.out.println("NODE SOLVED");
 			
 			if(leaves.get(i).eval < bestsol || bestsol == -1){
 				bestLeaf = leaves.get(i);
 				bestsol = leaves.get(i).eval;
+				System.out.println("New best solution found.");
 				//bestIndex = i;
 			}
 			selectedIndex = -1;//SelectedIndex = -1 means 'don't do any transitions on this leaf'
@@ -83,7 +91,8 @@ public class State{
 		if(!leaves.get(i).constr
 				|| (bestsol != -1 && leaves.get(i).eval > bestsol)){//If the node's problem either violates some constraints or is has a worse eval than the best one...
 			leaves.remove(i);///..get rid of it
-			System.out.println("NODE DELETED");
+			if (debug)
+				System.out.println("NODE DELETED");
 			selectedIndex = -1;//and make sure no transition will be attempted this pass.
 			//if(bestIndex > i){
 			//	bestIndex = bestIndex -1;
@@ -121,8 +130,10 @@ public class State{
 				
                 child.courseSlots.get(i).addClassLab(beingAdded);
                 children.add(child);
-				System.out.println("CHILD");
-				System.out.println(child.toString());
+                if (debug) {
+    				System.out.println("CHILD");
+    				System.out.println(child.toString());
+                }
             }
 
         }
@@ -148,15 +159,19 @@ public class State{
 			
 			if(l.constr && (l.eval <= bestsol || bestsol == -1)){
 				newLeaves.add(l);
-				System.out.println("Child added");
+				if (debug)
+					System.out.println("Child added");
 				
 			}
-			if(!l.constr){System.out.println("Following child violated constraints");
-			System.out.println(l.toString());}
+			if(!l.constr && debug){
+				System.out.println("Following child violated constraints");
+				System.out.println(l.toString());
+			}
 			
 			
 		}
-		System.out.println(children.size());
+		if (debug)
+			System.out.println(children.size());
 		for(int i = selectedIndex+1; i<leaves.size();i++){//Adding all the leaves after the selected one
 			newLeaves.add(leaves.get(i));
 		}
@@ -217,39 +232,41 @@ public class State{
 			//System.out.println(beenSelected);
 			
 			
-				 if(leaves.get(leaves.size()-i-1).sol == '?' && !beenSelected){
-					 System.out.println(!beenSelected);
+				if(leaves.get(leaves.size()-i-1).sol == '?' && !beenSelected){
+					if (debug)
+						System.out.println(!beenSelected);
 					selected = leaves.get(leaves.size()-i-1);
 					beenSelected = true;
 					deepest = leaves.get(leaves.size()-i-1).depth;
 					besteval = leaves.get(leaves.size()-i-1).eval;
 					selectedIndex = leaves.size()-i-1;
-					System.out.println(selectedIndex);
+					if (debug)
+						System.out.println(selectedIndex);
 					
 					
-				 }
+				}
 				 
-				 if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval < besteval){
+				if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval < besteval){
 					selected = leaves.get(leaves.size()-i-1);
 					besteval = leaves.get(leaves.size()-i-1).eval;
 					selectedIndex = leaves.size()-i-1;
 					deepest = leaves.get(leaves.size()-i-1).depth;
-				 }
-				 else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval == besteval && leaves.get(leaves.size()-i-1).depth > deepest){
+				}
+				else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval == besteval && leaves.get(leaves.size()-i-1).depth > deepest){
 					selected = leaves.get(leaves.size()-i-1);
 					deepest = leaves.get(leaves.size()-i-1).depth;
 					//besteval = Math.min(besteval, leaves.get(leaves.size()-i-1).eval);
 					selectedIndex = leaves.size()-i-1;
-				 }
-				  else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval == besteval && leaves.get(leaves.size()-i-1).depth == deepest){
+				}
+				else if(leaves.get(leaves.size()-i-1).sol == '?' && leaves.get(leaves.size()-i-1).eval == besteval && leaves.get(leaves.size()-i-1).depth == deepest){
 					selected = leaves.get(leaves.size()-i-1);
 					selectedIndex = leaves.size()-i-1;
 					//besteval = leaves.get(leaves.size()-i-1).eval;
 					//deepest = leaves.get(leaves.size()-i-1).depth;
-				 }
-				  else{
+				}
+				else{
 					 allSolved = true;
-				 }
+				}
 				 
 				// System.out.println(beenSelected);
 			}

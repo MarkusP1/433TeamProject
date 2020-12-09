@@ -516,4 +516,8 @@ public class ReaderThing {
 	public static ConstraintChecker getConstraintChecker() {
 		return c;
 	}
+	
+	public static boolean getDebug() {
+		return debug;
+	}
 }

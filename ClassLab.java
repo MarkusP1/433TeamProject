@@ -9,6 +9,7 @@ public class ClassLab {
     private boolean isLab;  //true if this is a lab
     private int labSection; //if its a lab, set to the correct lab section, set to 0 if this is a lecture
     
+    // full constructor
 	public ClassLab(String faculty, String courseNumber, int courseSection, boolean isLab, int labSection) {
 		this.faculty = new String(faculty);
 		this.courseNumber = new String(courseNumber);

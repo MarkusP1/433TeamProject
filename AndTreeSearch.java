@@ -8,7 +8,13 @@
 */
 
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AndTreeSearch {
 	 State startState;
@@ -30,25 +36,56 @@ public class AndTreeSearch {
 		ConstraintChecker c = ReaderThing.getConstraintChecker();
 		LinkedList<Leaf> leaves = new LinkedList<Leaf>();
 		leaves.add(root);
-		State tree = new State(leaves);
+		State tree = new State(leaves, ReaderThing.getDebug());
 		root.setConstr(c);
 		root.setEval(c);
 		
+		System.out.println("Starting search.");
+		
 		while(!tree.goal(0)){
-			System.out.println("AA");
+			if (ReaderThing.getDebug())
+				System.out.println("AA");
 			tree.erw(c);
 		}
 		
-		if(tree.leaves.size() !=0){
-			System.out.println("Solution:");
+		if (tree.leaves.size() !=0){
+			// System.out.println("Solution:");
 			Prob solution = tree.bestLeaf.pr;
-			System.out.println("Eval-value: " + solution.eval);
+			// System.out.println("Eval-value: " + solution.eval);
 			
-			for(int i = 0; i<solution.courseSlots.size();i++){
-				String output = solution.courseSlots.get(i).toString();
-				System.out.println(output);
+			HashMap<ClassLab, Slot> scheduleByClasses = new HashMap<ClassLab, Slot>();
+			
+			for (Slot sl : solution.getUnmodifiableSlots()){
+				// String output = solution.courseSlots.get(i).toString();
+				// System.out.println(output);
 				
+				for (ClassLab cl : sl.getUnmodifiableClasses()) {
+					scheduleByClasses.put(cl, sl);
+				}
 			}
+			
+			List<ClassLab> classes = ReaderThing.getCourses().stream()
+					.sorted((cl1, cl2) -> cl1.toString().compareTo(cl2.toString()))
+					.collect(Collectors.toList());
+			
+			try {
+				File out = new File("outputs/out_" + args[0]);
+				BufferedWriter writer = new BufferedWriter(new FileWriter(out));
+				
+				writer.write("Eval-value: " + solution.eval + "\n");
+				for (ClassLab cl : classes) {
+					writer.write(String.format("%1$-28s:%2$s\n", cl.toString(), scheduleByClasses.get(cl).toMinimalString()));
+				}
+				
+				writer.flush();
+				writer.close();
+				
+				System.out.println("Wrote solution to " + out.getName());
+				
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+			
 		}
 		else{
 			System.out.println("The problem was unsolvable.");
@@ -76,7 +113,7 @@ public class AndTreeSearch {
 		}
 		*/
 		
-		System.out.println("done for now");
+		System.out.println("Done.");
 	}
 
 	

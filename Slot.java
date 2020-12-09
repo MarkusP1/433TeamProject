@@ -11,10 +11,11 @@ public class Slot {
     private LocalTime endTime;
     private int max;  // coursemax or labmax for the slot if this is a lab
     private int min;  // see above
-    private boolean isLab;  //true if this is a lab
+    private boolean isLab;  // true if this is a lab
     
-    private ArrayList<ClassLab> classes = new ArrayList<ClassLab>();
+    private ArrayList<ClassLab> classes = new ArrayList<ClassLab>(); // list of classes assigned to this slot
     
+    // full constructor, classes starts empty
 	public Slot(ArrayList<DayOfWeek> days, LocalTime startTime, LocalTime endTime, int max, int min,
 			boolean isLab) {
 		this.days = new ArrayList<DayOfWeek>(days);
@@ -25,6 +26,7 @@ public class Slot {
 		this.isLab = isLab;
 	}
 	
+	// copy constructor with shallow copy of classes (class references are used in comparison so no deep copying)
 	public Slot(Slot copy) {
 		this.days = new ArrayList<DayOfWeek>(copy.days);
 		this.startTime = copy.startTime;
@@ -60,6 +62,7 @@ public class Slot {
 		return Collections.unmodifiableList(classes);
 	}
 
+	// check if days conflict and times conflict
     public boolean conflicts(Slot sl) {
     	boolean daysConflict = this.days.stream()
     			.anyMatch(d -> sl.days.contains(d));
@@ -100,5 +103,9 @@ public class Slot {
     			+ startTime.toString() + " to "
     			+ endTime.toString() + " of "
     			+ classes.toString();
+    }
+    
+    public String toMinimalString() {
+    	return days.get(0).toString().substring(0, 2) + ", " + startTime.toString();
     }
 }
