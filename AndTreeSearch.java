@@ -1,9 +1,12 @@
 /*
-*AND-Tree Search applying Branch-and-Bound 
-*Names:
-*Mitchel Belanger, UCID: 30075310
-*Sean Park, UCID: 30061734
-*Tadic Adrian, UCID 30077647
+* AND-Tree Search applying Branch-and-Bound 
+* Names:
+* Mitchel Belanger
+* Sean Park
+* Tadic Adrian
+* Eric Gantz
+* Markus Pistner
+* Sammy El-rafih
 *
 */
 
@@ -39,21 +42,20 @@ public class AndTreeSearch {
 		LinkedList<Leaf> leaves = new LinkedList<Leaf>();
 		leaves.add(root);
 		State tree = new State(leaves, ReaderThing.getDebug(),
-				l -> {
+				l -> { // is a SolutionWriter, where the function is called when a new best solution is found
 					Prob solution = l.pr;
-					// System.out.println("Eval-value: " + solution.eval);
 					
 					HashMap<ClassLab, Slot> scheduleByClasses = new HashMap<ClassLab, Slot>();
 					
+					// map classes to slots instead of slots to classes
 					for (Slot sl : solution.getUnmodifiableSlots()){
-						// String output = solution.courseSlots.get(i).toString();
-						// System.out.println(output);
 						
 						for (ClassLab cl : sl.getUnmodifiableClasses()) {
 							scheduleByClasses.put(cl, sl);
 						}
 					}
 					
+					// sort classes before printing
 					List<ClassLab> classes = ReaderThing.getCourses().stream()
 							.sorted((cl1, cl2) -> {
 								int courseCompare = (cl1.getFaculty() + cl1.getCourseNumber() + cl1.getCourseSection())
@@ -71,6 +73,7 @@ public class AndTreeSearch {
 								return cl1.toString().compareTo(cl2.toString());
 							}).collect(Collectors.toList());
 					
+					// try to write output in outputs directory
 					try {
 						File out = new File("outputs/out_" + args[0]);
 						BufferedWriter writer = new BufferedWriter(new FileWriter(out));
@@ -97,6 +100,7 @@ public class AndTreeSearch {
 		
 		int limit = 0;
 		
+		// begin main loop
 		while(!tree.goal()){
 			if (ReaderThing.getDebug()) {
 				System.out.println(" ");
@@ -107,8 +111,22 @@ public class AndTreeSearch {
 			limit = limit+1;
 		}
 		
+		// after search ended
 		if (tree.leaves.size() !=0){
-			// System.out.println("Solution:");
+			// find best of the solutions
+			int bestEval = -1;
+			Leaf best = tree.leaves.get(0);
+			
+			for(int i = 0; i < tree.leaves.size(); i++){
+				if(bestEval == -1 || tree.leaves.get(i).pr.eval < bestEval){
+					best = tree.leaves.get(i);
+					bestEval = best.pr.eval;
+				}
+			}
+			
+			System.out.println("Writing final best solution.");
+			
+			tree.writer.writeSolution(best);
 		}
 		else{
 			System.out.println("The problem was unsolvable.");

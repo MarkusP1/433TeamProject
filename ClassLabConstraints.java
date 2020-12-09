@@ -3,6 +3,11 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+/**
+ * Holds all necessary constraints information relating to classes which can't be derived.
+ *
+ */
 public class ClassLabConstraints {
 	
 	private ArrayList<ClassLab> notCompatible;

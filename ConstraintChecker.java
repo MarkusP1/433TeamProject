@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
+/**
+ * Holds all methods for hard and soft constraints checking.
+ *
+ */
 public class ConstraintChecker {
-	
-	/*HashMap<UniClass, ArrayList<UniClass>> notcompatibleMap;
-	HashMap<UniClass, Slot> partassignMap;
-	HashMap<UniClass, ArrayList<Slot>> unwantedMap;
-	HashMap<UniClass, ConstrPenPair<Slot>> preferenceMap;
-	HashMap<UniClass, UniClass> pairMap;*/
 	
 	HashMap<ClassLab, ClassLabConstraints> constraintsMap;
 	
@@ -77,6 +76,9 @@ public class ConstraintChecker {
 									&& cl1.getFaculty().equals(cl2.getFaculty())
 									&& cl1.getCourseNumber().equals(cl2.getCourseNumber())
 									&& cl1.getCourseSection() == cl2.getCourseSection()) {
+								if (debug) {
+									System.out.println("section + its labs constraint violated by:\n" + cl1 + " and " + cl2);
+								}
 								return false;
 							}
 						}
@@ -106,6 +108,9 @@ public class ConstraintChecker {
 					for (ClassLab cl2 : sl2.getUnmodifiableClasses()) {
 
 						if (cl1 != cl2 && constraints.notCompatibleContains(cl2)) {
+							if (debug) {
+								System.out.println("not compatible constraint violated by:\n" + cl1 + " and " + cl2);
+							}
 							return false;
 						}
 					}
@@ -123,6 +128,9 @@ public class ConstraintChecker {
 				
 				if (constraints.getPartassign() != null
 						&& !constraints.getPartassign().equals(sl)) {
+					if (debug) {
+						System.out.println("partassign constraint violated by:\n" + cl + " in " + sl);
+					}
 					return false;
 				}
 			}
@@ -137,6 +145,9 @@ public class ConstraintChecker {
 				ClassLabConstraints constraints = constraintsMap.get(cl);
 				
 				if (constraints.unwantedContains(sl)) {
+					if (debug) {
+						System.out.println("unwanted constraint violated by:\n" + cl + " in " + sl);
+					}
 					return false;
 				}
 			}
@@ -153,6 +164,9 @@ public class ConstraintChecker {
 					
 					if ((sl.getStartTime().compareTo(LocalTime.of(18, 0)) >= 0 && cl.getCourseSection() < 90)
 							|| (sl.getStartTime().isBefore(LocalTime.of(18, 0)) && cl.getCourseSection() >= 90)) {
+						if (debug) {
+							System.out.println("evening constraint violated by:\n" + cl + " in " + sl);
+						}
 						return false;
 					}
 				}
@@ -170,6 +184,9 @@ public class ConstraintChecker {
 					for (ClassLab cl2 : sl.getUnmodifiableClasses()) {
 						
 						if (cl1 != cl2 && cl2.getCourseNumber().charAt(0) == '5') {
+							if (debug) {
+								System.out.println("500 level constraint violated by:\n" + cl1 + " and " + cl2);
+							}
 							return false;
 						}
 					}
@@ -185,6 +202,9 @@ public class ConstraintChecker {
 			if (!sl.isLab() && sl.getDays().contains(DayOfWeek.TUESDAY)
 					&& sl.getStartTime().equals(LocalTime.of(11, 0))
 					&& !sl.getUnmodifiableClasses().isEmpty()) {
+				if (debug) {
+					System.out.println("no TU 11 lec constraint violated\n");
+				}
 				return false;
 			}
 		}
@@ -281,6 +301,13 @@ public class ConstraintChecker {
 		return eval;
 	}
 	
+	
+	/**
+	 * Will mutate given pr's constr value based on whether it passes all hard constraints.
+	 * 
+	 * Relates to Constr*, which can take an incomplete assignment represented by pr.
+	 *
+	 */
 	public void constrStar(Prob pr) {
 		boolean hardConstrs = constrMax(pr) && constrSectionLabs(pr) 
 				&& constrNotCompatible(pr) && constrPartAssign(pr) && constrUnwanted(pr)
@@ -289,6 +316,14 @@ public class ConstraintChecker {
 		pr.setConstr(hardConstrs);
 	}
 	
+	
+	/**
+	 * Will mutate given pr's eval value based on how it passes soft constraints, along
+	 * with penalty and weight values.
+	 * 
+	 * Relates to Eval*, which can take an incomplete assignment represented by pr.
+	 *
+	 */
 	public void evalStar(Prob pr) {
 		int eval = 0;
 		
@@ -300,6 +335,13 @@ public class ConstraintChecker {
 		pr.setEval(eval);
 	}
 	
+	
+	/**
+	 * Is slightly different from evalStar in that minfilled values are not used, for the
+	 * sake of allowing the control to assume that children of a node is guaranteed to
+	 * have the same or worse fbound values.
+	 *
+	 */
 	public void fbound(Prob pr) {
 		int eval = 0;
 		eval += evalPref(pr) * w_pref;

@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+/**
+ * Represents a slot which holds all classes assigned to it.
+ * 
+ * Is mutable, for changing classes assigned to this slot.
+ *
+ */
 public class Slot {
 	
     private ArrayList<DayOfWeek> days;    //1 for monday, 2 for tuesday, etc.

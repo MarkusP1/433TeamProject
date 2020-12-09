@@ -1,6 +1,10 @@
 
 
-
+/**
+ * Represents a course lecture or lab (or tut), differentiated by booleans held in an instance.
+ * Is immutable.
+ *
+ */
 public class ClassLab {
 	
     private String faculty; //CPSC, SENG, etc.
@@ -62,13 +66,13 @@ public class ClassLab {
     public String toString() {
     	String sectionDesc = "";
     	if (!(isLabOrTut && courseSection == 0)) {
-    		sectionDesc = "LEC " + String.format("%1$02d", courseSection) + " ";
+    		sectionDesc = "LEC " + String.format("%1$02d", courseSection);
     	}
     	
     	if (isLabOrTut) {
     		String labOrTutID = isTut ? "TUT " : "LAB ";
     		
-    		sectionDesc = sectionDesc + labOrTutID + String.format("%1$02d", labSection);
+    		sectionDesc = sectionDesc + " " + labOrTutID + String.format("%1$02d", labSection);
     	}
     	
     	return faculty + " " + courseNumber + " "
